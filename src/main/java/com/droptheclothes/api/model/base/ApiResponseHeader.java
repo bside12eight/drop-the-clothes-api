@@ -14,10 +14,9 @@ public class ApiResponseHeader {
     private String resultMessage;
 
     public static ApiResponseHeader create(ResultCode resultCode) {
-        return builder()
-            .resultCode(resultCode.getCode())
-            .resultMessage(resultCode.getMessage())
-            .build();
+        return builder().resultCode(resultCode.getCode())
+                        .resultMessage(resultCode.getMessage())
+                        .build();
     }
 
     @Builder
