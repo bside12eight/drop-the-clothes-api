@@ -1,2 +1,19 @@
 server:
   port: 8081
+  tomcat:
+    basedir: .
+    accesslog:
+      enabled: true
+      prefix: access_log
+      suffix: .log
+      file-date-format: .yyyy-MM-dd
+      directory: logs/accesslog
+      pattern: common
+spring:
+  application:
+    name: DroptheClothes-API
+  profiles:
+    active: local
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
