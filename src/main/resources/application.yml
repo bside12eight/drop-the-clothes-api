@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   tomcat:
     basedir: .
     accesslog:
@@ -12,8 +12,6 @@ server:
 spring:
   application:
     name: DroptheClothes-API
-  profiles:
-    active: local
 springdoc:
   swagger-ui:
     path: /swagger-ui
