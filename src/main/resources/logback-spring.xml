@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <springProfile name="test,local">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  </springProfile>
+  <springProfile name="dev,release">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+  </springProfile>
+
+  <springProperty name="SERVER_PORT" source="server.port"/>
+  <springProperty name="LOG_PATH" source="logging.file.path"/>
+
+  <appender name="LOG_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/droptheclothes_api_${SERVER_PORT}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/droptheclothes_api_${SERVER_PORT}.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>30GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M:%line - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <springProfile name="local">
+    <root level="ERROR">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="LOG_ROLLING"/>
+    </root>
+    <logger name="org.springframework" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="com.droptheclothes.api" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="LOG_ROLLING"/>
+    </logger>
+  </springProfile>
+
+  <springProfile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="LOG_ROLLING"/>
+    </root>
+    <logger name="com.droptheclothes.api" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="LOG_ROLLING"/>
+    </logger>
+  </springProfile>
+
+  <springProfile name="release">
+    <root level="INFO">
+      <appender-ref ref="LOG_ROLLING"/>
+    </root>
+    <logger name="com.droptheclothes.api" level="WARN" additivity="false">
+      <appender-ref ref="LOG_ROLLING"/>
+    </logger>
+  </springProfile>
+</configuration>

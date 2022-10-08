@@ -15,3 +15,6 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui
+logging:
+  file:
+    path: /home1/jenkins/logs/droptheclothes
