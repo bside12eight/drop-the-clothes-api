@@ -14,7 +14,7 @@ spring:
     name: DroptheClothes-API
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://101.101.219.145:3306/mysql?serverTimezone=Asia/Seoul
+    url: jdbc:mysql://101.101.219.145:3306/DTCDB?serverTimezone=Asia/Seoul
     username: eight
     password: N6*J@rune2%TNr
   jpa:
