@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   tomcat:
     basedir: .
     accesslog:
@@ -12,8 +12,25 @@ server:
 spring:
   application:
     name: DroptheClothes-API
-  profiles:
-    active: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://101.101.219.145:3306/DTCDB?serverTimezone=Asia/Seoul
+    username: eight
+    password: N6*J@rune2%TNr
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      dialect: org.hibernate.dialect.MySQL5InnoDBDialect
 springdoc:
   swagger-ui:
     path: /swagger-ui
+logging:
+  file:
+    path: /home1/jenkins/logs/droptheclothes
