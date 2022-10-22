@@ -16,7 +16,8 @@ public class ClothingBinController {
     private final ClothingBinService clothingBinService;
 
     @GetMapping("/api/clothing-bins")
-    public ApiResponse getClothingBins(Double latitude, Double longitude) {
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(clothingBinService.getClothingBins(latitude, longitude)));
+    public ApiResponse getClothingBinsWithin1km(Double latitude, Double longitude) {
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                               new CollectionObject<>(clothingBinService.getClothingBinsWithin1km(latitude, longitude, 1000)));
     }
 }

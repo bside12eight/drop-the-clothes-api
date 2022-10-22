@@ -1,13 +1,10 @@
 package com.droptheclothes.api.model.dto;
 
 
-import com.droptheclothes.api.model.entity.ClothingBin;
 import java.time.LocalDateTime;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class ClothingBinResponse {
 
     private String name;
@@ -16,22 +13,23 @@ public class ClothingBinResponse {
 
     private String detailedAddress;
 
-    private Double latitued;
+    private Double latitude;
 
     private Double longitude;
 
-    private Double distance;
+    private Double distanceInMeters;
 
     private LocalDateTime updatedAt;
 
-    public static ClothingBinResponse entityToDto(ClothingBin clothingBin) {
-        return ClothingBinResponse.builder()
-                                  .name(clothingBin.getName())
-                                  .address(clothingBin.getAddress())
-                                  .detailedAddress(clothingBin.getDetailedAddress())
-                                  .latitued(clothingBin.getLatitude())
-                                  .longitude(clothingBin.getLongitude())
-                                  .updatedAt(clothingBin.getUpdatedAt())
-                                  .build();
+    public ClothingBinResponse(String name, String address, String detailedAddress,
+                               Double latitude, Double longitude, Double distanceInMeters,
+                               LocalDateTime updatedAt) {
+        this.name = name;
+        this.address = address;
+        this.detailedAddress = detailedAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.distanceInMeters = distanceInMeters;
+        this.updatedAt = updatedAt;
     }
 }
