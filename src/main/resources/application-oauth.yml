@@ -1,0 +1,47 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 	c8f3b580b209de1e64a44c750b50e6d5
+            redirect-uri: http://localhost:8080/oauth/kakao
+            client-authentication-method: POST
+            client-secret: 	bs8jUpEE4GUgBwwXywQMrukbjQ5qBE3j
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+              - gender
+              - birthday
+            client_name: kakao
+          apple:
+            client-name: apple
+            client-id: CLIENT_ID
+            client-secret: CLIENT_SECRET
+            client-authentication-method: post
+            redirect-uri: http://localhost:8080/oauth2/apple
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - name
+              - email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+          apple:
+            authorization-uri: https://appleid.apple.com/auth/authorize?response_mode=form_post
+            token-uri: https://appleid.apple.com/auth/token
+            jwk-set-uri: https://appleid.apple.com/auth/keys
+
+jwt:
+  token:
+    secret-key: [secret-key]
+  access-token:
+    expire-length: 1800000
+  refresh-token:
+    expire-length: 1209600000
