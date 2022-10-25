@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @DynamicUpdate
+@Entity
 public class Member extends BaseTimeEntity {
 
   @Id
@@ -27,12 +27,8 @@ public class Member extends BaseTimeEntity {
   private LocalDateTime loggedInAt;
   private LocalDateTime deletedAt;
 
-  //@Enumerated(EnumType.STRING)
-  //private Role role;
-
   @Builder
-  public Member(String memberId, String joinType, String nickName, String email, String password, LocalDateTime loggedInAt, LocalDateTime deletedAt  //,Role role
-  ){
+  public Member(String memberId, String joinType, String nickName, String email, String password, LocalDateTime loggedInAt, LocalDateTime deletedAt){
     this.memberId = memberId;
     this.joinType = joinType;
     this.nickName = nickName;
@@ -40,7 +36,6 @@ public class Member extends BaseTimeEntity {
     this.password = password;
     this.loggedInAt = loggedInAt;
     this.deletedAt = deletedAt;
-    //this.role = role;
   }
 
 }
