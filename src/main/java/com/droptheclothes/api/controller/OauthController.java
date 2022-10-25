@@ -43,9 +43,7 @@ public class OauthController {
    */
   @PostMapping("/api/login/oauth/{provider}")
   public ResponseEntity<LoginResponse> login(@PathVariable String provider, @RequestParam String code) {
-
     LoginResponse loginResponse = oauthService.login(provider, code);
-
     return ResponseEntity.ok().body(loginResponse);
   }
 

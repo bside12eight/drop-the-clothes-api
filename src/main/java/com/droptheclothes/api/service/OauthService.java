@@ -1,11 +1,11 @@
 package com.droptheclothes.api.service;
 
+import com.droptheclothes.api.jwt.JwtTokenProvider;
+import com.droptheclothes.api.model.dto.OauthInfoRequest;
 import com.droptheclothes.api.model.dto.auth.KakaoUserInfo;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.Oauth2UserInfo;
 import com.droptheclothes.api.model.dto.auth.OauthTokenResponse;
-import com.droptheclothes.api.jwt.JwtTokenProvider;
-import com.droptheclothes.api.model.dto.OauthInfoRequest;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.OauthRepository;
@@ -45,7 +45,7 @@ public class OauthService {
 
   /**
    * 소셜 서버로부터 사용자 정보를 받아와서 로그인 처리를 진행함
-   * @param provider
+   * @param providerName
    * @param code
    * @return
    */
@@ -81,9 +81,9 @@ public class OauthService {
         return WebClient.create()
             .post()
             .uri(provider.getProviderDetails().getTokenUri())
-            .headers(heder -> {
-              heder.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-              heder.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
+            .headers(header -> {
+              header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+              header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
             })
             .bodyValue(tokenRequest(code, provider))
             .retrieve()
@@ -146,7 +146,7 @@ public class OauthService {
     return WebClient.create()
         .post()
         .uri(provider.getProviderDetails().getUserInfoEndpoint().getUri())
-        .headers(heder -> heder.setBearerAuth(tokenResponse.getAccessToken()))
+        .headers(header -> header.setBearerAuth(tokenResponse.getAccessToken()))
         .retrieve()
         .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
         .block();

@@ -1,6 +1,6 @@
 package com.droptheclothes.api.jwt;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
