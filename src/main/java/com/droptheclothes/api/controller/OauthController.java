@@ -47,4 +47,20 @@ public class OauthController {
     return ResponseEntity.ok().body(loginResponse);
   }
 
+
+  /**
+   * OAuth 로그인 시 액세스코드를 넘겨받은 후
+   *  1) 최초 로그인 : 회원가입 처리 -> 메인
+   *  2) 기타 : 로그인 처리
+   * @param provider
+   * @param accessToken
+   * @return
+   */
+  @PostMapping("/api/login/oauth2/{provider}")
+  public ResponseEntity<LoginResponse> loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
+    LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
+    return ResponseEntity.ok().body(loginResponse);
+  }
+
+
 }

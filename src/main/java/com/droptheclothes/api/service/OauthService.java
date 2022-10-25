@@ -43,6 +43,53 @@ public class OauthService {
   }
 
 
+
+
+
+
+  /**
+   * 소셜 서버로부터 사용자 정보를 받아와서 로그인 처리를 진행함
+   * @param providerName
+   * @param
+   * @return
+   */
+  public LoginResponse loginWithToken(String providerName, String Token){
+
+    /**
+     * 소셜 서버에서 사용자 정보 받아오기
+     */
+    ClientRegistration provider = inMemoryRepository.findByRegistrationId(providerName); // 소셜 provider 확인하기
+
+    OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
+                                                          .accessToken(Token)
+                                                          .tokenType(BEARER_TYPE)
+                                                          .build();
+
+    Member member = getUserProfile(providerName, tokenResponse, provider); // 사용자 정보 얻기
+
+    /**
+     * 앱에 전달할 jwt 토큰 발행하기
+     */
+    String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getMemberId()));
+    String refreshToken = jwtTokenProvider.createRefreshToken();
+
+    return LoginResponse.builder()
+        .provider(providerName)
+        .memberId(member.getMemberId())
+        .nickName(member.getNickName())
+        .email(member.getEmail())
+        .role(member.getRole())
+        .tokenType(BEARER_TYPE)
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .build();
+
+  }
+
+
+
+
+
   /**
    * 소셜 서버로부터 사용자 정보를 받아와서 로그인 처리를 진행함
    * @param providerName
@@ -76,6 +123,10 @@ public class OauthService {
         .build();
 
   }
+
+
+
+
 
   private OauthTokenResponse getToken(String code, ClientRegistration provider){
         return WebClient.create()
