@@ -103,6 +103,7 @@ public class OauthService {
      */
     ClientRegistration provider = inMemoryRepository.findByRegistrationId(providerName); // 소셜 provider 확인하기
     OauthTokenResponse tokenResponse = getToken(code, provider); // 액세스 토큰 얻기
+    log.info("액세스 토큰 얻기 성공" + tokenResponse.getAccessToken());
     Member member = getUserProfile(providerName, tokenResponse, provider); // 사용자 정보 얻기
 
     /**
@@ -159,6 +160,13 @@ public class OauthService {
     return formData;
   }
 
+  /**
+   * KAKAO 소셜 로그인 서버에 Access Token을 통해 사용자 정보를 받아옴
+   * @param providerName
+   * @param tokenResponse
+   * @param provider
+   * @return
+   */
   private Member getUserProfile(
       String providerName
       , OauthTokenResponse tokenResponse
@@ -169,6 +177,7 @@ public class OauthService {
 
     if(providerName.equals("kakao")){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
+      log.info("카카오 고객 정보를 받아오는데 성공하였습니다" + oauth2UserInfo.getNickName());
     } else {
       log.info("허용되지 않은 AUTH 접근입니다");
     }
