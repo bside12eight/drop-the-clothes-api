@@ -102,8 +102,12 @@ public class OauthService {
      * 소셜 서버에서 사용자 정보 받아오기
      */
     ClientRegistration provider = inMemoryRepository.findByRegistrationId(providerName); // 소셜 provider 확인하기
+    log.debug("**************************login 메소드 실행!**************************");
+    log.debug("소셜 provider : " + provider.getProviderDetails().getTokenUri());
+    log.debug("소셜 code : " + code);
+
     OauthTokenResponse tokenResponse = getToken(code, provider); // 액세스 토큰 얻기
-    log.info("액세스 토큰 얻기 성공" + tokenResponse.getAccessToken());
+    log.debug("액세스 토큰 얻기 성공! 액세스 토큰 : " + tokenResponse.getAccessToken());
     Member member = getUserProfile(providerName, tokenResponse, provider); // 사용자 정보 얻기
 
     /**
@@ -130,17 +134,20 @@ public class OauthService {
 
 
   private OauthTokenResponse getToken(String code, ClientRegistration provider){
-        return WebClient.create()
-            .post()
-            .uri(provider.getProviderDetails().getTokenUri())
-            .headers(header -> {
-              header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-              header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
-            })
-            .bodyValue(tokenRequest(code, provider))
-            .retrieve()
-            .bodyToMono(OauthTokenResponse.class)
-            .block();
+    log.debug("**************************getToken메소드 실행!*************************");
+    log.debug("code : " + code);
+
+    return WebClient.create()
+        .post()
+        .uri(provider.getProviderDetails().getTokenUri())
+        .headers(header -> {
+          header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+          header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
+        })
+        .bodyValue(tokenRequest(code, provider))
+        .retrieve()
+        .bodyToMono(OauthTokenResponse.class)
+        .block();
   }
 
   /**
@@ -151,6 +158,13 @@ public class OauthService {
    */
   private MultiValueMap<String, String> tokenRequest(String code, ClientRegistration provider){
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+
+    log.debug("*************************tokenRequest 메소드 실행!*************************");
+    log.debug("code : " + code);
+    log.debug("client_id : " + provider.getClientId());
+    log.debug("redirect_uri : " + provider.getRedirectUri());
+    log.debug("client_secret : " + provider.getClientSecret());
+
     formData.add("code", code);
     formData.add("grant_type", "authorization_code");
     formData.add("client_id", provider.getClientId());
