@@ -136,6 +136,9 @@ public class OauthService {
   private OauthTokenResponse getToken(String code, ClientRegistration provider){
     log.debug("**************************getToken메소드 실행!*************************");
     log.debug("code : " + code);
+    log.debug("client_id : " + provider.getClientId());
+    log.debug("redirect_uri : " + provider.getRedirectUri());
+    log.debug("client_secret : " + provider.getClientSecret());
 
     return WebClient.create()
         .post()
@@ -159,12 +162,7 @@ public class OauthService {
   private MultiValueMap<String, String> tokenRequest(String code, ClientRegistration provider){
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
 
-    log.debug("*************************tokenRequest 메소드 실행!*************************");
-    log.debug("code : " + code);
-    log.debug("client_id : " + provider.getClientId());
-    log.debug("redirect_uri : " + provider.getRedirectUri());
-    log.debug("client_secret : " + provider.getClientSecret());
-
+    log.debug("*************************tokenRequest 조합!*************************");
     formData.add("code", code);
     formData.add("grant_type", "authorization_code");
     formData.add("client_id", provider.getClientId());
