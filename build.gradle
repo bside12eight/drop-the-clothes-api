@@ -27,11 +27,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
+//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 //    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.9'
@@ -46,9 +42,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 
-    implementation('org.hibernate.validator:hibernate-validator:6.1.2.Final')
-    implementation('org.glassfish:jakarta.el:3.0.3')
-    compileOnly 'org.springframework.boot:spring-boot-starter-mustache'
 }
 
 tasks.named('test') {
