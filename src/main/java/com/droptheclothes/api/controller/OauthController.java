@@ -44,7 +44,7 @@ public class OauthController {
    * @param code
    * @return
    */
-  @GetMapping("/login/oauth2/code/{provider}")
+  @GetMapping("/api/login/oauth/{provider}")
   public ResponseEntity<LoginResponse> login(@PathVariable String provider, @RequestParam String code) {
     log.debug("**************************로그인 진입***********************************");
     LoginResponse loginResponse = oauthService.login(provider, code);
