@@ -4,13 +4,20 @@ import com.droptheclothes.api.model.base.ApiResponse;
 import com.droptheclothes.api.model.base.ApiResponseHeader;
 import com.droptheclothes.api.model.base.SingleObject;
 import com.droptheclothes.api.model.dto.OauthInfoRequest;
+import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.OauthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class OauthController {
@@ -28,5 +35,50 @@ public class OauthController {
         request.getDeviceID()))
     );
   }
+
+  /**
+   * OAuth 로그인 시 인증코드를 넘겨받은 후
+   *  1) 최초 로그인 : 회원가입 처리 -> 메인
+   *  2) 기타 : 로그인 처리
+   * @param provider
+   * @param code
+   * @return
+   */
+  @GetMapping("/api/login/oauth/{provider}")
+  public ResponseEntity<LoginResponse> login(@PathVariable String provider, @RequestParam String code) {
+    log.debug("**************************로그인 진입***********************************");
+    LoginResponse loginResponse = oauthService.login(provider, code);
+    return ResponseEntity.ok().body(loginResponse);
+  }
+
+  @PostMapping("/api/login/oauth/{provider}")
+  public ResponseEntity<LoginResponse> postLogin(@PathVariable String provider, @RequestParam String code) {
+    log.debug("**************************로그인 진입***********************************");
+    LoginResponse loginResponse = oauthService.login(provider, code);
+    return ResponseEntity.ok().body(loginResponse);
+  }
+
+
+
+  /**
+   * OAuth 로그인 시 액세스코드를 넘겨받은 후
+   *  1) 최초 로그인 : 회원가입 처리 -> 메인
+   *  2) 기타 : 로그인 처리
+   * @param provider
+   * @param accessToken
+   * @return
+   */
+  @GetMapping("/api/login/oauth2/{provider}")
+  public ResponseEntity<LoginResponse> loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
+    LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
+    return ResponseEntity.ok().body(loginResponse);
+  }
+
+  @PostMapping("/api/login/oauth2/{provider}")
+  public ResponseEntity<LoginResponse> postLoginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
+    LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
+    return ResponseEntity.ok().body(loginResponse);
+  }
+
 
 }
