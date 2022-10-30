@@ -28,6 +28,10 @@ spring:
     properties:
       hibernate.format_sql: true
       dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
 springdoc:
   swagger-ui:
     path: /swagger-ui
