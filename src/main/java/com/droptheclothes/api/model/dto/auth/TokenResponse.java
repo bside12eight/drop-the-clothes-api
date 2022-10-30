@@ -4,24 +4,16 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class LoginResponse {
-
-  private String nickName;
-  private String email;
+public class TokenResponse {
   private String accessToken;
   private String refreshToken;
 
   @Builder
-  public LoginResponse(
-        String nickName
-      , String email
-      , String accessToken
+  public TokenResponse(
+        String accessToken
       , String refreshToken
   ){
-    this.nickName = nickName;
-    this.email = email;
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
   }
-
 }

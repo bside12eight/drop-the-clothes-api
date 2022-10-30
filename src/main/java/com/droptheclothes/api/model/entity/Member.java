@@ -62,13 +62,13 @@ public class Member extends BaseTimeEntity {
   //email,nickName, provide, providerId)
   public static Member createMember(
       String providerId
-      , String provide
+      , String provider
       , String nickName
       , String email
   ){
     Member member = Member.builder()
         .memberId(providerId)
-        .provider(provide)
+        .provider(provider)
         .role(Role.USER)
         .email(email)
         .nickName(nickName)
