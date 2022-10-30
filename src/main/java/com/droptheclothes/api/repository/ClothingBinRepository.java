@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ClothingBinRepository extends JpaRepository<ClothingBin, Long>, ClothingBinRepositoryCustom {
 
     Optional<ClothingBin> findByClothingBinId(Long clothingBinId);
+
+    Optional<ClothingBin> findByAddress(String address);
 }
