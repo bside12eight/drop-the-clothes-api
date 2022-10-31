@@ -1,9 +1,7 @@
 package com.droptheclothes.api.service;
 
+import com.droptheclothes.api.jwt.JwtTokenProvider;
 import com.droptheclothes.api.model.dto.OauthInfoRequest;
-import com.droptheclothes.api.repository.OauthRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import com.droptheclothes.api.model.dto.auth.KakaoUserInfo;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.Oauth2UserInfo;
@@ -19,13 +17,16 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class OauthService {
 
+  private static final String BEARER_TYPE = "Bearer ";
   private final OauthRepository oauthRepository;
   private final MemberRepository memberRepository;
   private final JwtTokenProvider jwtTokenProvider;
+
 
   /**
    * 프론트에서 받은 AccessToken 정보를 DB에 저장하는 메소드
@@ -35,7 +36,6 @@ public class OauthService {
     oauthRepository.save(requestDto.toEntity());
   }
 
-  public void getUserInfo(){
   /**
    * 소셜 서버로부터 사용자 정보를 받아와서 로그인 처리를 진행함
    * @param providerName

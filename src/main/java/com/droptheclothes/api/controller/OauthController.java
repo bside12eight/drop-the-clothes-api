@@ -37,7 +37,7 @@ public class OauthController {
   }
 
   /**
-   * OAuth 로그인 시 액세스코드를 넘겨받은 후
+   * OAuth 로그인 시 소셜 서버로부터 액세스코드를 넘겨받은 후
    *  1) 최초 로그인 : 회원가입 처리 -> 메인
    *  2) 기타 : 로그인 처리
    * @param provider
