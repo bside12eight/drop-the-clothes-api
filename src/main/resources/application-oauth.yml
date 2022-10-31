@@ -34,11 +34,3 @@ spring:
 #            authorization-uri: https://appleid.apple.com/auth/authorize?response_mode=form_post
 #            token-uri: https://appleid.apple.com/auth/token
 #            jwk-set-uri: https://appleid.apple.com/auth/keys
-
-jwt:
-  token:
-    secret-key: secretkeysecretkeysecretkeysecretkeysecretkeysecretkeyOauth2ClientProperties
-  access-token:
-    expire-length: 1800000
-  refresh-token:
-    expire-length: 1209600000
