@@ -32,6 +32,14 @@ spring:
     multipart:
       max-file-size: 2MB
       max-request-size: 10MB
+
+jwt:
+  token:
+    secret-key: secretkeysecretkeysecretkeysecretkeysecretkeysecretkeyOauth2ClientProperties
+  access-token:
+    expire-length: 1800000
+  refresh-token:
+    expire-length: 1209600000
 springdoc:
   swagger-ui:
     path: /swagger-ui
