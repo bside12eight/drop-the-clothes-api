@@ -77,13 +77,7 @@ public class OauthService {
         .build();
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
-    Member member = null;
-    if(nickName.isEmpty() || nickName == ""){
-      member = getUserProfile(providerName, tokenResponse);
-    }
-    else{
-      member = getUserProfileWithNewNickName(providerName, tokenResponse, nickName);
-    }
+    Member member = getUserProfileWithNewNickName(providerName, tokenResponse, nickName);
 
     memberRepository.save(member); // 회원가입
 
@@ -181,7 +175,18 @@ public class OauthService {
 
     String provider = oauth2UserInfo.getProvider();
     String providerId = providerName + "_" + oauth2UserInfo.getProviderId();
-    //String nickName = oauth2UserInfo.getNickName();
+    if(
+        ( nickName.isEmpty() )
+            || (nickName.equals("") )
+            || (nickName == null)
+    ){
+      log.info("&&&&&&&&&&&&&&&&&&& 공백임");
+      nickName = oauth2UserInfo.getNickName();
+    }
+    else{
+      log.info("&&&&&&&&&&&&&&&&&&& 공백아님 , nickName : " + nickName);
+    }
+
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
@@ -236,15 +241,28 @@ public class OauthService {
 
   }
 
-  public Boolean checkNickName(String nickName) {
-    Boolean checkNickName = false;
+  public Boolean isExistNickName(String nickName) {
+    Boolean isExistNickName = false;
     Member memberEntitiy = memberRepository.findByNickName(nickName);
 
     if(memberEntitiy == null) {
-      checkNickName = true;
+      isExistNickName = true;
     }
-    return checkNickName;
+    return isExistNickName;
   }
+
+  public Boolean updateNickName(String memberId, String nickName) {
+    Boolean changeNickName = false;
+    Member memberEntity = memberRepository.findByMemberId(memberId);
+
+    if( !isExistNickName(nickName) ){
+      changeNickName = true;
+      memberEntity.changeNickName(nickName);
+    }
+
+    return changeNickName;
+  }
+
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
