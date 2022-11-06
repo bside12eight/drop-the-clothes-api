@@ -8,12 +8,14 @@ import com.droptheclothes.api.model.dto.auth.LoginRequest;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
+import com.droptheclothes.api.model.dto.auth.UpdateRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.OauthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,6 +30,9 @@ public class OauthController {
 
   private final OauthService oauthService;
 
+  /**
+   * 최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api
+   */
   @PostMapping(value = "/api/oauth2/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
 
@@ -40,6 +45,9 @@ public class OauthController {
         new SingleObject<>(oauthResponse));
   }
 
+  /**
+   * 회원가입 api
+   */
   @PostMapping(value = "/api/oauth2/{provider}/singup")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
 
@@ -58,24 +66,43 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
-
-    @PostMapping("/api/refresh/oauth2")
-  public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
-    TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
-    return ResponseEntity.ok().body(tokenResponse);
+  /**
+   * 닉네임 중복 판별 api
+   */
+  @GetMapping("/api/oauth2/{nickName}")
+  public ApiResponse checkNickName(@RequestParam String nickName) {
+    Boolean checkNickName = oauthService.isExistNickName(nickName);
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(checkNickName));
   }
 
-  @PutMapping ("/api/oauth2/{memberId}")
-  public ResponseEntity<Boolean> checkNickName(@PathVariable String nickName) {
-    Boolean checkNickName = oauthService.checkNickName(nickName);
-    return ResponseEntity.ok().body(checkNickName);
+
+  /**
+   * 닉네임 수정 api
+   */
+  @PutMapping("/api/oauth2/{memberId}")
+  public ApiResponse checkNickName(@PathVariable String memberId, @RequestBody UpdateRequest updateRequest) {
+    Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(changeNickName));
   }
 
+  /**
+   * 회원탈퇴 api
+   */
   @DeleteMapping("/api/oauth2/{memberId}")
   public ApiResponse deleteProfile(@PathVariable String memberId) {
     Boolean isDelete = oauthService.deleteProfile(memberId);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(isDelete));
+  }
+
+
+
+  @PostMapping("/api/refresh/oauth2")
+  public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
+    TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
+    return ResponseEntity.ok().body(tokenResponse);
   }
 
 

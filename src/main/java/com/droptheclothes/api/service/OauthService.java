@@ -236,15 +236,28 @@ public class OauthService {
 
   }
 
-  public Boolean checkNickName(String nickName) {
-    Boolean checkNickName = false;
+  public Boolean isExistNickName(String nickName) {
+    Boolean isExistNickName = false;
     Member memberEntitiy = memberRepository.findByNickName(nickName);
 
     if(memberEntitiy == null) {
-      checkNickName = true;
+      isExistNickName = true;
     }
-    return checkNickName;
+    return isExistNickName;
   }
+
+  public Boolean updateNickName(String memberId, String nickName) {
+    Boolean changeNickName = false;
+    Member memberEntity = memberRepository.findByMemberId(memberId);
+
+    if( !isExistNickName(nickName) ){
+      changeNickName = true;
+      memberEntity.changeNickName(nickName);
+    }
+
+    return changeNickName;
+  }
+
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
