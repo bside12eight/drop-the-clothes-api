@@ -48,7 +48,7 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
-  @GetMapping("/api/oauth2/{provider}")
+  @GetMapping("/api/oauth/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestParam String accessToken,@RequestParam String type) {
 
     LoginResponse loginResponse = null;
@@ -61,7 +61,7 @@ public class OauthController {
     else if(type.equals("join")){
       loginResponse = oauthService.loginWithToken(provider, accessToken);
     }
-    
+
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(loginResponse));
   }
