@@ -58,7 +58,7 @@ public class OauthController {
   /**
    * 회원가입 api
    */
-  @PostMapping(value = "/api/oauth2/{provider}/singup")
+  @PostMapping(value = "/api/oauth2/{provider}/signup")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
 
     String accessToken = joinRequest.getAccessToken();
