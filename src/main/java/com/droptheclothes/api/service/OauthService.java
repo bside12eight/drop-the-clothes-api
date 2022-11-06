@@ -53,6 +53,8 @@ public class OauthService {
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
     Member member = getUserProfile(providerName, tokenResponse);
 
+    memberRepository.save(member); // 회원가입
+
     // 3. 앱에 전달할 jwt 토큰 발행하기
     String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getNickName()));
     String refreshToken = jwtTokenProvider.createRefreshToken();
