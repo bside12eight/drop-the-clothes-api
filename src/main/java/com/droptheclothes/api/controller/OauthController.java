@@ -3,7 +3,6 @@ package com.droptheclothes.api.controller;
 import com.droptheclothes.api.model.base.ApiResponse;
 import com.droptheclothes.api.model.base.ApiResponseHeader;
 import com.droptheclothes.api.model.base.SingleObject;
-import com.droptheclothes.api.model.dto.OauthInfoRequest;
 import com.droptheclothes.api.model.dto.auth.JoinRequest;
 import com.droptheclothes.api.model.dto.auth.LoginRequest;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,30 +28,6 @@ public class OauthController {
 
   private final OauthService oauthService;
 
-  @PostMapping("/api/oauth/login")
-  public ApiResponse saveAccessToken(@RequestBody OauthInfoRequest request) {
-
-    oauthService.saveAccessToken(request);
-
-    return new ApiResponse(
-        ApiResponseHeader.create(ResultCode.SUCCESS)
-        , new SingleObject<>(new OauthInfoRequest(request.getAuthId(), request.getAuthType(),
-        request.getDeviceID()))
-    );
-  }
-
-  /**
-   * OAuth 로그인 시 소셜 서버로부터 액세스코드를 넘겨받은 후
-   *  1) 최초 로그인 : 회원가입 처리 -> 메인
-   *  2) 기타 : 로그인 처리
-   */
-  @GetMapping("/api/oauth/{provider}")
-  public ApiResponse loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
-    LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(loginResponse));
-  }
-
   @PostMapping(value = "/api/oauth2/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
 
@@ -65,7 +39,6 @@ public class OauthController {
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(oauthResponse));
   }
-
 
   @PostMapping(value = "/api/oauth2/{provider}/singup")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
