@@ -48,7 +48,7 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
-  @GetMapping("/api/oauth2/{provider}")
+  @PostMapping("/api/oauth2/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestParam String accessToken,@RequestParam String type) {
 
     LoginResponse loginResponse = null;
@@ -58,7 +58,7 @@ public class OauthController {
       loginResponse = oauthService.loginWithToken2(provider, accessToken, type);
     }
     // 회원가입시
-    else if(type.equals("join")){
+    else if(type != null){
       loginResponse = oauthService.loginWithToken(provider, accessToken);
     }
 
