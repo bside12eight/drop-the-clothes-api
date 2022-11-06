@@ -41,14 +41,14 @@ public class OauthController {
    *  1) 최초 로그인 : 회원가입 처리 -> 메인
    *  2) 기타 : 로그인 처리
    */
-  @GetMapping("/api/oauth2/{provider}")
+  @GetMapping("/api/oauth/{provider}")
   public ApiResponse loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
     LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(loginResponse));
   }
 
-  @GetMapping("/api/oauth/{provider}")
+  @GetMapping("/api/oauth2/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestParam String accessToken,@RequestParam String type) {
 
     LoginResponse loginResponse = null;
