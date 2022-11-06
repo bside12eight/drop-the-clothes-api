@@ -154,7 +154,7 @@ public class OauthService {
     Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
-    if(providerName.equals(Provider.kakao)){
+    if(providerName.equals(Provider.kakao.name())){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     } else {
@@ -184,7 +184,7 @@ public class OauthService {
     Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
-    if(providerName.equals(Provider.kakao)){
+    if(providerName.equals(Provider.kakao.name())){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     } else {
@@ -213,7 +213,7 @@ public class OauthService {
    */
   private Map<String, Object> getUserAttributes(String providerName, OauthTokenResponse tokenResponse){
     String uri = "";
-    if(providerName.equals(Provider.kakao)) {
+    if(providerName.equals("kakao")) {
       uri = "https://kapi.kakao.com/v2/user/me";
     }
 
