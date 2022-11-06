@@ -7,6 +7,7 @@ import com.droptheclothes.api.model.dto.OauthInfoRequest;
 import com.droptheclothes.api.model.dto.auth.JoinRequest;
 import com.droptheclothes.api.model.dto.auth.LoginRequest;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
+import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.OauthService;
@@ -57,28 +58,16 @@ public class OauthController {
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
 
     String accessToken = loginRequest.getAccessToken();
-    String type = "";
-    String nickName = "";
+    OauthResponse oauthResponse = null;
 
-    LoginResponse loginResponse = null;
-
-    // 최초 로그인 시
-    if(loginRequest.getType().isEmpty()){
-      loginResponse = oauthService.loginWithToken2(provider, accessToken, type);
-    }
-    // 회원가입시
-    else {
-      log.info("************ type : " + type);
-      type = loginRequest.getType();
-      loginResponse = oauthService.loginWithToken(provider, accessToken);
-    }
+    oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
 
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(loginResponse));
+        new SingleObject<>(oauthResponse));
   }
 
 
-  @PostMapping(value = "/api/oauth2/join/{provider}")
+  @PostMapping(value = "/api/oauth2/{provider}/singup")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
 
     String accessToken = joinRequest.getAccessToken();
@@ -86,12 +75,13 @@ public class OauthController {
 
     LoginResponse loginResponse = null;
 
-    // 최초 로그인 시
+    // 닉네임 변경하지 않고 회원가입시
     if(joinRequest.getNickName().isEmpty()){
       loginResponse = oauthService.loginWithToken(provider, accessToken);
     }
-    // 회원가입시
+    // 닉네임 변경해서 회원가입시
     else{
+      nickName = joinRequest.getNickName();
       log.info("************ nickName : " + nickName);
       loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
     }
