@@ -88,7 +88,7 @@ public class OauthController {
    * 닉네임 중복 판별 api
    */
   @GetMapping("/api/oauth2/{nickName}")
-  public ApiResponse checkNickName(@RequestParam String nickName) {
+  public ApiResponse checkNickName(@PathVariable String nickName) {
     Boolean checkNickName = oauthService.isExistNickName(nickName);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(checkNickName));
@@ -96,10 +96,24 @@ public class OauthController {
 
 
   /**
+   * 로그인 유저 정보 판별 api
+   */
+  @GetMapping("/api/oauth2/profile")
+  public ApiResponse getProfileById(@RequestParam String memberId) {
+    OauthResponse oauthResponse = oauthService.getProfileById(memberId);
+
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(oauthResponse));
+  }
+
+  /**
    * 닉네임 수정 api
    */
   @PutMapping("/api/oauth2/{memberId}")
   public ApiResponse checkNickName(@PathVariable String memberId, @RequestBody UpdateRequest updateRequest) {
+
+
+    log.info("updateRequest.getNickName() : "+ updateRequest.getNickName());
     Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(changeNickName));
@@ -114,6 +128,10 @@ public class OauthController {
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(isDelete));
   }
+
+
+
+
 
 
 
