@@ -48,14 +48,9 @@ public class OauthController {
 
     LoginResponse loginResponse = null;
 
-    // 닉네임 변경하지 않고 회원가입시
-    if(joinRequest.getNickName().isEmpty()){
-      loginResponse = oauthService.loginWithToken(provider, accessToken);
-    }
     // 닉네임 변경해서 회원가입시
-    else{
+    if(!joinRequest.getNickName().isEmpty()){
       nickName = joinRequest.getNickName();
-      log.info("************ nickName : " + nickName);
       loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
     }
 
@@ -70,16 +65,17 @@ public class OauthController {
     return ResponseEntity.ok().body(tokenResponse);
   }
 
-  @PutMapping ("/api/oauth2/{nickname}")
+  @PutMapping ("/api/oauth2/{memberId}")
   public ResponseEntity<Boolean> checkNickName(@PathVariable String nickName) {
     Boolean checkNickName = oauthService.checkNickName(nickName);
     return ResponseEntity.ok().body(checkNickName);
   }
 
   @DeleteMapping("/api/oauth2/{memberId}")
-  public ResponseEntity<Boolean> deleteProfile(@RequestParam String memberId) {
+  public ApiResponse deleteProfile(@PathVariable String memberId) {
     Boolean isDelete = oauthService.deleteProfile(memberId);
-    return ResponseEntity.ok().body(isDelete);
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(isDelete));
   }
 
 

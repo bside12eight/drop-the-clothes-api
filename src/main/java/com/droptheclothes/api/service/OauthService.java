@@ -53,7 +53,6 @@ public class OauthService {
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
     Member member = getUserProfile(providerName, tokenResponse);
-
     memberRepository.save(member); // 회원가입
 
     // 3. 앱에 전달할 jwt 토큰 발행하기
@@ -97,6 +96,7 @@ public class OauthService {
         .email(member.getEmail())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
+        .type("join")
         .build();
 
   }
@@ -160,6 +160,7 @@ public class OauthService {
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
     }
+
     return memberEntity;
   }
 
@@ -247,11 +248,11 @@ public class OauthService {
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntitiy = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberId(memberId);
 
-    if(memberEntitiy != null) {
+    if(memberEntity != null) {
       isDelete = true;
-      memberRepository.delete(memberEntitiy);
+      memberRepository.delete(memberEntity);
     }
     return isDelete;
   }
