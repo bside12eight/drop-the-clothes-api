@@ -32,6 +32,7 @@ public class OauthController {
 
   /**
    * 최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api
+   * 존재하는 회원일 때에는 로그인 진행
    */
   @PostMapping(value = "/api/oauth2/{provider}")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
@@ -41,8 +42,17 @@ public class OauthController {
 
     oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
 
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(oauthResponse));
+    if(oauthResponse.getType().trim().equals("sign-in") ){
+      return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+          new SingleObject<>(oauthService.loginWithToken(provider, accessToken)));
+    }
+    else{
+      return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+          new SingleObject<>(oauthResponse));
+    }
+
+
+
   }
 
   /**
@@ -53,7 +63,6 @@ public class OauthController {
 
     String accessToken = joinRequest.getAccessToken();
     String nickName = "";
-
     LoginResponse loginResponse = null;
 
     // 닉네임 변경해서 회원가입시
@@ -62,14 +71,13 @@ public class OauthController {
             || (joinRequest.getNickName().equals("") )
             || (joinRequest.getNickName() == null)
     ){
-      log.info("&&&&&&&&&&&&&&&&&&&11 공백임");
-      loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
+      ;
     }
     else{
-      log.info("&&&&&&&&&&&&&&&&&&&11 공백아님");
       nickName = joinRequest.getNickName();
-      loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
+
     }
+    loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
 
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(loginResponse));
