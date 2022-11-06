@@ -57,7 +57,16 @@ public class OauthController {
     LoginResponse loginResponse = null;
 
     // 닉네임 변경해서 회원가입시
-    if(!joinRequest.getNickName().isEmpty()){
+    if(
+        ( joinRequest.getNickName().isEmpty() )
+            || (joinRequest.getNickName().equals("") )
+            || (joinRequest.getNickName() == null)
+    ){
+      log.info("&&&&&&&&&&&&&&&&&&&11 공백임");
+      loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
+    }
+    else{
+      log.info("&&&&&&&&&&&&&&&&&&&11 공백아님");
       nickName = joinRequest.getNickName();
       loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
     }
