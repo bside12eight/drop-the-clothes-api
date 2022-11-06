@@ -68,6 +68,33 @@ public class OauthService {
 
   }
 
+  public LoginResponse joinWithToken(String providerName, String Token, String nickName){
+
+    //1. 소셜 서버에 전달할 accessToken
+    OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
+        .accessToken(Token)
+        .tokenType(BEARER_TYPE)
+        .build();
+
+    // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
+    Member member = getUserProfile(providerName, tokenResponse);
+    member.updateNickname(member, nickName);
+    memberRepository.save(member); // 회원가입
+
+    // 3. 앱에 전달할 jwt 토큰 발행하기
+    String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getNickName()));
+    String refreshToken = jwtTokenProvider.createRefreshToken();
+
+    return LoginResponse.builder()
+        .nickName(member.getNickName())
+        .email(member.getEmail())
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .build();
+
+  }
+
+
   public LoginResponse loginWithToken2(String providerName, String Token, String type){
 
     //1. 소셜 서버에 전달할 accessToken

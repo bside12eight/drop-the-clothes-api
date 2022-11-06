@@ -4,6 +4,7 @@ import com.droptheclothes.api.model.base.ApiResponse;
 import com.droptheclothes.api.model.base.ApiResponseHeader;
 import com.droptheclothes.api.model.base.SingleObject;
 import com.droptheclothes.api.model.dto.OauthInfoRequest;
+import com.droptheclothes.api.model.dto.auth.JoinRequest;
 import com.droptheclothes.api.model.dto.auth.LoginRequest;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
@@ -57,15 +58,16 @@ public class OauthController {
 
     String accessToken = loginRequest.getAccessToken();
     String type = "";
+    String nickName = "";
 
     LoginResponse loginResponse = null;
 
     // 최초 로그인 시
-    if(type.isEmpty()){
+    if(loginRequest.getType().isEmpty()){
       loginResponse = oauthService.loginWithToken2(provider, accessToken, type);
     }
     // 회원가입시
-    else if(!type.isEmpty()){
+    else {
       log.info("************ type : " + type);
       type = loginRequest.getType();
       loginResponse = oauthService.loginWithToken(provider, accessToken);
@@ -75,7 +77,31 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
-  @PostMapping("/api/refresh/oauth2")
+
+  @PostMapping(value = "/api/oauth2/join/{provider}")
+  public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
+
+    String accessToken = joinRequest.getAccessToken();
+    String nickName = "";
+
+    LoginResponse loginResponse = null;
+
+    // 최초 로그인 시
+    if(joinRequest.getNickName().isEmpty()){
+      loginResponse = oauthService.loginWithToken(provider, accessToken);
+    }
+    // 회원가입시
+    else{
+      log.info("************ nickName : " + nickName);
+      loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
+    }
+
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(loginResponse));
+  }
+
+
+    @PostMapping("/api/refresh/oauth2")
   public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
     TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
     return ResponseEntity.ok().body(tokenResponse);
