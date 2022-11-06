@@ -77,4 +77,20 @@ public class Member extends BaseTimeEntity {
     return member;
   }
 
+  public static Member updateNickname(
+      Member memberEntity
+      , String nickName
+  ){
+    Member member = Member.builder()
+        .memberId(memberEntity.getMemberId())
+        .provider(memberEntity.getProvider())
+        .role(Role.USER)
+        .email(memberEntity.getEmail())
+        .nickName(nickName)
+        .build();
+
+    return member;
+  }
+
+
 }
