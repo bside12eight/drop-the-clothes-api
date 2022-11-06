@@ -40,31 +40,47 @@ public class OauthController {
    * OAuth 로그인 시 소셜 서버로부터 액세스코드를 넘겨받은 후
    *  1) 최초 로그인 : 회원가입 처리 -> 메인
    *  2) 기타 : 로그인 처리
-   * @param provider
-   * @param accessToken
-   * @return
    */
-  @GetMapping("/api/login/oauth2/{provider}")
-  public ResponseEntity<LoginResponse> loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
+  @GetMapping("/api/oauth2/{provider}")
+  public ApiResponse loginWithToken(@PathVariable String provider, @RequestParam String accessToken) {
     LoginResponse loginResponse = oauthService.loginWithToken(provider, accessToken);
-    return ResponseEntity.ok().body(loginResponse);
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(loginResponse));
   }
 
-  @PostMapping("/api/refresh/oauth2")
+  @GetMapping("/api/oauth2/{provider}")
+  public ApiResponse loginWithToken2(@PathVariable String provider, @RequestParam String accessToken,@RequestParam String type) {
+
+    LoginResponse loginResponse = null;
+
+    // 최초 로그인 시
+    if(type == null){
+      loginResponse = oauthService.loginWithToken2(provider, accessToken, type);
+    }
+    // 회원가입시
+    else if(type.equals("join")){
+      loginResponse = oauthService.loginWithToken(provider, accessToken);
+    }
+    
+    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+        new SingleObject<>(loginResponse));
+  }
+
+  @PostMapping("/api/oauth2/refresh")
   public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
     TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
     return ResponseEntity.ok().body(tokenResponse);
   }
 
-  @PostMapping("/api/oauth2/check-nickname")
-  public ResponseEntity<Boolean> checkNickName(@RequestParam String nickName) {
+  @GetMapping("/api/oauth2/{nickname}")
+  public ResponseEntity<Boolean> checkNickName(@PathVariable String nickName) {
     Boolean checkNickName = oauthService.checkNickName(nickName);
     return ResponseEntity.ok().body(checkNickName);
   }
 
-  @DeleteMapping("/api/profile/oauth2")
-  public ResponseEntity<Boolean> deleteProfile(@RequestParam String email) {
-    Boolean isDelete = oauthService.deleteProfile(email);
+  @DeleteMapping("/api/oauth2/{memberId}")
+  public ResponseEntity<Boolean> deleteProfile(@RequestParam String memberId) {
+    Boolean isDelete = oauthService.deleteProfile(memberId);
     return ResponseEntity.ok().body(isDelete);
   }
 

@@ -44,19 +44,16 @@ public class OauthService {
    */
   public LoginResponse loginWithToken(String providerName, String Token){
 
-    /**
-     * 1. 소셜 서버에서 사용자 정보 받아오기
-     */
+    //1. 소셜 서버에 전달할 accessToken
     OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
                                                           .accessToken(Token)
                                                           .tokenType(BEARER_TYPE)
                                                           .build();
 
-    Member member = getUserProfile(providerName, tokenResponse); // 사용자 정보 얻기
+    // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
+    Member member = getUserProfile(providerName, tokenResponse);
 
-    /**
-     * 2. 앱에 전달할 jwt 토큰 발행하기
-     */
+    // 3. 앱에 전달할 jwt 토큰 발행하기
     String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getNickName()));
     String refreshToken = jwtTokenProvider.createRefreshToken();
 
@@ -69,12 +66,37 @@ public class OauthService {
 
   }
 
+  public LoginResponse loginWithToken2(String providerName, String Token, String type){
+
+    //1. 소셜 서버에 전달할 accessToken
+    OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
+        .accessToken(Token)
+        .tokenType(BEARER_TYPE)
+        .build();
+
+    // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
+    Member member = getUserProfile(providerName, tokenResponse);
+
+    //이미 존재하는 회원인지 검증하는 과정
+    Member memberEntity = memberRepository.findByMemberId(member.getMemberId());
+
+    if(memberEntity == null) {
+      type = "join";
+    }
+    else{
+      type = "sign-in";
+    }
+
+    return LoginResponse.builder()
+        .nickName(member.getNickName())
+        .email(member.getEmail())
+        .type(type)
+        .build();
+
+  }
+
   /**
    * KAKAO 소셜 로그인 서버에 Access Token을 통해 사용자 정보를 받아옴
-   * @param providerName
-   * @param tokenResponse
-   * @param
-   * @return
    */
   private Member getUserProfile(
       String providerName
@@ -95,25 +117,17 @@ public class OauthService {
     String nickName = oauth2UserInfo.getNickName();
     String email = oauth2UserInfo.getEmail();
 
-    /**
-     * 이미 존재하는 회원인지 검증하는 과정
-     */
-//    Member memberEntitiy = memberRepository.findByEmail(email);
-    Member memberEntitiy = memberRepository.findByMemberId(providerId);
+    //이미 존재하는 회원인지 검증하는 과정
+    Member memberEntity = memberRepository.findByMemberId(providerId);
 
-    if(memberEntitiy == null){
-      memberEntitiy = Member.createMember(providerId, provider, nickName, email);
-      memberRepository.save(memberEntitiy); // 회원가입
+    if(memberEntity == null){
+      memberEntity = Member.createMember(providerId, provider, nickName, email);
     }
-    return memberEntitiy;
-
+    return memberEntity;
   }
 
   /**
-   * 소셜 서버에서 사용자 정보를 받아오는 메소드
-   * @param providerName
-   * @param tokenResponse
-   * @return
+   * 소셜 서버에 접속하여 사용자 정보를 받아오는 메소드
    */
   private Map<String, Object> getUserAttributes(String providerName, OauthTokenResponse tokenResponse){
     String uri = "";
@@ -161,9 +175,9 @@ public class OauthService {
     return checkNickName;
   }
 
-  public Boolean deleteProfile(String email) {
+  public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntitiy = memberRepository.findByEmail(email);
+    Member memberEntitiy = memberRepository.findByMemberId(memberId);
 
     if(memberEntitiy != null) {
       isDelete = true;
