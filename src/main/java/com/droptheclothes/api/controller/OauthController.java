@@ -83,6 +83,7 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
+
   /**
    * 닉네임 중복 판별 api
    */
