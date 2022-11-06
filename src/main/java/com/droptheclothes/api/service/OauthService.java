@@ -68,7 +68,7 @@ public class OauthService {
         .email(member.getEmail())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
-        .type("sing-in")
+        .type(SignType.SIGNIN.getType())
         .build();
 
   }
