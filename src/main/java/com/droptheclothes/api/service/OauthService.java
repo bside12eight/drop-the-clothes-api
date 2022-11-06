@@ -251,8 +251,9 @@ public class OauthService {
     Boolean isExistNickName = false;
     Member memberEntitiy = memberRepository.findByNickName(nickName);
 
-    if(memberEntitiy == null) {
+    if(memberEntitiy != null) {
       isExistNickName = true;
+      //throw new DropTheClothesApiException(ResponseCode.EXIST_NICKNAME);
     }
     return isExistNickName;
   }
@@ -262,8 +263,9 @@ public class OauthService {
     Member memberEntity = memberRepository.findByMemberId(memberId);
 
     if( !isExistNickName(nickName) ){
-      changeNickName = true;
       memberEntity.changeNickName(nickName);
+      memberRepository.save(memberEntity);
+      changeNickName = true;
     }
 
     return changeNickName;
@@ -279,5 +281,19 @@ public class OauthService {
       memberRepository.delete(memberEntity);
     }
     return isDelete;
+  }
+
+  public OauthResponse getProfileById(String memberId) {
+    Member memberEntity = memberRepository.findByMemberId(memberId);
+
+    if(memberEntity == null){
+      //throw new DropTheClothesApiException(ResponseCode.EXIST_MEMBER);
+    }
+
+    return OauthResponse.builder()
+        .nickName(memberEntity.getNickName())
+        .email(memberEntity.getEmail())
+        .type(memberEntity.getMemberId().split("_")[0])
+        .build();
   }
 }
