@@ -9,6 +9,8 @@ import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.OauthTokenResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.entity.Member;
+import com.droptheclothes.api.model.enums.Provider;
+import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.OauthRepository;
 import java.util.Map;
@@ -87,11 +89,11 @@ public class OauthService {
             || (nickName.equals("") )
             || (nickName == null)
     ){
-      type = "sign-in";
+      type = SignType.SIGNIN.getType();
       member = getUserProfile(providerName, tokenResponse);
     }
     else{
-      type = "sing-up";
+      type = SignType.SIGNUP.getType();
       member = getUserProfileWithNewNickName(providerName, tokenResponse, nickName);
     }
 
@@ -129,10 +131,10 @@ public class OauthService {
     Member memberEntity = memberRepository.findByMemberId(member.getMemberId());
 
     if(memberEntity == null) {
-      type = "sign-up";
+      type = SignType.SIGNUP.getType();
     }
     else{
-      type = "sign-in";
+      type = SignType.SIGNIN.getType();
     }
 
     return OauthResponse.builder()
@@ -152,7 +154,7 @@ public class OauthService {
     Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
-    if(providerName.equals("kakao")){
+    if(providerName.equals(Provider.kakao)){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     } else {
@@ -182,7 +184,7 @@ public class OauthService {
     Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
-    if(providerName.equals("kakao")){
+    if(providerName.equals(Provider.kakao)){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     } else {
@@ -211,7 +213,7 @@ public class OauthService {
    */
   private Map<String, Object> getUserAttributes(String providerName, OauthTokenResponse tokenResponse){
     String uri = "";
-    if(providerName.equals("kakao")) {
+    if(providerName.equals(Provider.kakao)) {
       uri = "https://kapi.kakao.com/v2/user/me";
     }
 
