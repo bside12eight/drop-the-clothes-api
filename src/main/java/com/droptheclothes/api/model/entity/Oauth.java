@@ -1,5 +1,6 @@
 package com.droptheclothes.api.model.entity;
 
+import com.droptheclothes.api.model.base.BaseTimeEntity;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @DynamicUpdate
 @Entity
-public class Oauth {
+public class Oauth extends BaseTimeEntity {
 
   @Id
   private String authId; // accesssToken
