@@ -5,6 +5,7 @@ import com.droptheclothes.api.model.dto.OauthInfoRequest;
 import com.droptheclothes.api.model.dto.auth.KakaoUserInfo;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.Oauth2UserInfo;
+import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.OauthTokenResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.entity.Member;
@@ -52,7 +53,6 @@ public class OauthService {
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
     Member member = getUserProfile(providerName, tokenResponse);
-
     memberRepository.save(member); // 회원가입
 
     // 3. 앱에 전달할 jwt 토큰 발행하기
@@ -77,8 +77,14 @@ public class OauthService {
         .build();
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
-    Member member = getUserProfile(providerName, tokenResponse);
-    member.updateNickname(member, nickName);
+    Member member = null;
+    if(nickName.isEmpty() || nickName == ""){
+      member = getUserProfile(providerName, tokenResponse);
+    }
+    else{
+      member = getUserProfileWithNewNickName(providerName, tokenResponse, nickName);
+    }
+
     memberRepository.save(member); // 회원가입
 
     // 3. 앱에 전달할 jwt 토큰 발행하기
@@ -90,12 +96,15 @@ public class OauthService {
         .email(member.getEmail())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
+        .type("join")
         .build();
 
   }
 
 
-  public LoginResponse loginWithToken2(String providerName, String Token, String type){
+  public OauthResponse checkExistMemberWithToken(String providerName, String Token){
+
+    String type = "";
 
     //1. 소셜 서버에 전달할 accessToken
     OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
@@ -110,18 +119,17 @@ public class OauthService {
     Member memberEntity = memberRepository.findByMemberId(member.getMemberId());
 
     if(memberEntity == null) {
-      type = "join";
+      type = "sign-up";
     }
     else{
       type = "sign-in";
     }
 
-    return LoginResponse.builder()
+    return OauthResponse.builder()
         .nickName(member.getNickName())
         .email(member.getEmail())
         .type(type)
         .build();
-
   }
 
   /**
@@ -152,6 +160,40 @@ public class OauthService {
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
     }
+
+    return memberEntity;
+  }
+
+  private Member getUserProfileWithNewNickName(
+      String providerName
+      , OauthTokenResponse tokenResponse
+      , String nickName
+  ){
+    Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
+    Oauth2UserInfo oauth2UserInfo = null;
+
+    if(providerName.equals("kakao")){
+      oauth2UserInfo = new KakaoUserInfo(userAttributes);
+      log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
+    } else {
+      log.info("허용되지 않은 AUTH 접근입니다");
+    }
+
+    String provider = oauth2UserInfo.getProvider();
+    String providerId = providerName + "_" + oauth2UserInfo.getProviderId();
+    //String nickName = oauth2UserInfo.getNickName();
+    String email = oauth2UserInfo.getEmail();
+
+    //이미 존재하는 회원인지 검증하는 과정
+    Member memberEntity = memberRepository.findByMemberId(providerId);
+
+    if(memberEntity == null){
+      memberEntity = Member.createMember(providerId, provider, nickName, email);
+    }
+    else{
+      memberEntity.changeNickName(nickName);
+    }
+
     return memberEntity;
   }
 
@@ -206,11 +248,11 @@ public class OauthService {
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntitiy = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberId(memberId);
 
-    if(memberEntitiy != null) {
+    if(memberEntity != null) {
       isDelete = true;
-      memberRepository.delete(memberEntitiy);
+      memberRepository.delete(memberEntity);
     }
     return isDelete;
   }
