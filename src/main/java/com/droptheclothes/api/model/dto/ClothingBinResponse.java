@@ -11,6 +11,8 @@ import lombok.Getter;
 @Getter
 public class ClothingBinResponse {
 
+    private Long clothingBinId;
+
     private String name;
 
     private String address;
@@ -28,6 +30,7 @@ public class ClothingBinResponse {
 
     public static ClothingBinResponse entityToDto(ClothingBin entity) {
         return ClothingBinResponse.builder()
+                                  .clothingBinId(entity.getClothingBinId())
                                   .name(entity.getName())
                                   .address(entity.getAddress())
                                   .detailedAddress(entity.getDetailedAddress())
@@ -38,9 +41,9 @@ public class ClothingBinResponse {
     }
 
     @Builder
-    public ClothingBinResponse(String name, String address, String detailedAddress,
-                               Double latitude, Double longitude, Double distanceInMeters,
-                               LocalDateTime updatedAt) {
+    public ClothingBinResponse(Long clothingBinId, String name, String address, String detailedAddress, Double latitude,
+                               Double longitude, Double distanceInMeters, LocalDateTime updatedAt) {
+        this.clothingBinId = clothingBinId;
         this.name = name;
         this.address = address;
         this.detailedAddress = detailedAddress;

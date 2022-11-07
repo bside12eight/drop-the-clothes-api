@@ -2,7 +2,7 @@ package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.exception.DropTheClothesApiException;
 import com.droptheclothes.api.model.dto.ClothingBinResponse;
-import com.droptheclothes.api.model.dto.NewClothingBinRequest;
+import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
 import com.droptheclothes.api.model.entity.ClothingBin;
 import com.droptheclothes.api.model.entity.Report;
 import com.droptheclothes.api.model.entity.ReportMember;
@@ -41,7 +41,7 @@ public class ClothingBinService {
     }
 
     @Transactional
-    public void reportNewClothingBin(NewClothingBinRequest request, MultipartFile image) {
+    public void reportNewClothingBin(ReportClothingBinRequest request, MultipartFile image) {
         clothingBinRepository.findByAddress(request.getAddress()).ifPresent(clothingBin -> {
             throw new IllegalArgumentException("해당 위치에는 이미 등록된 의류수거함이 존재합니다.");
         });

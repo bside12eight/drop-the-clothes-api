@@ -1,6 +1,6 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.model.dto.NewClothingBinRequest;
+import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
 import com.droptheclothes.api.model.enums.ReportStatus;
 import com.droptheclothes.api.model.enums.ReportType;
 import java.time.LocalDateTime;
@@ -53,7 +53,7 @@ public class Report {
     @OneToMany(mappedBy = "reportId")
     private List<ReportMember> reportMembers = new ArrayList<>();
 
-    public static Report of(NewClothingBinRequest request) {
+    public static Report of(ReportClothingBinRequest request) {
         return Report.builder()
                      .type(ReportType.NEW)
                      .address(request.getAddress())

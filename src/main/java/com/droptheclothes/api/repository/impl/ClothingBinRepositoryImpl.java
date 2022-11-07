@@ -13,7 +13,8 @@ public class ClothingBinRepositoryImpl implements ClothingBinRepositoryCustom {
 
     @Override
     public List<ClothingBinResponse> getClothingBinsWithin1km(Double latitude, Double longitude, Integer distance) {
-        return entityManager.createNativeQuery("select name,\n" +
+        return entityManager.createNativeQuery("select clothingBinId,\n" +
+                                        "       name,\n" +
                                         "       address,\n" +
                                         "       detailedAddress,\n" +
                                         "       latitude,\n" +

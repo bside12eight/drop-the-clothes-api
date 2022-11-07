@@ -16,6 +16,7 @@ import lombok.Getter;
     classes = @ConstructorResult(
             targetClass = ClothingBinResponse.class,
             columns = {
+                @ColumnResult(name = "clothingBinId", type = Long.class),
                 @ColumnResult(name = "name", type = String.class),
                 @ColumnResult(name ="address", type = String.class),
                 @ColumnResult(name = "detailedAddress", type = String.class),

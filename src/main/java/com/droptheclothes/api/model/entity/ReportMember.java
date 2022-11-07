@@ -1,6 +1,6 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.model.dto.NewClothingBinRequest;
+import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
 import com.droptheclothes.api.model.entity.pk.ReportMemberId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,7 +30,7 @@ public class ReportMember {
     @JoinColumn(name = "reportId", insertable = false, updatable = false)
     private Report report;
 
-    public static ReportMember of(Report report, NewClothingBinRequest request, String uploadPathAndFileName) {
+    public static ReportMember of(Report report, ReportClothingBinRequest request, String uploadPathAndFileName) {
         return ReportMember.builder()
                            .reportId(report.getReportId())
                            .memberId(request.getMemberId())
