@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReportMemberId implements Serializable {
 
-    private Long reportId;
+    private Long report;
 
-    private Long memberId;
+    private String member;
 }

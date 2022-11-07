@@ -4,11 +4,12 @@ import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
 import com.droptheclothes.api.model.enums.ReportStatus;
 import com.droptheclothes.api.model.enums.ReportType;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -50,8 +51,8 @@ public class Report {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "reportId")
-    private List<ReportMember> reportMembers = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
+    private Set<ReportMember> reportMembers = new HashSet<>();
 
     public static Report of(ReportClothingBinRequest request) {
         return Report.builder()

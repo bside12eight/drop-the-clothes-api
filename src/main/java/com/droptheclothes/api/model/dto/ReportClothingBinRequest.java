@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReportClothingBinRequest {
 
-    private Long memberId;
+    private String memberId;
 
     private String address;
 
