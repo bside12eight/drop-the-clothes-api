@@ -10,6 +10,7 @@ import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.dto.auth.UpdateRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
+import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.service.OauthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class OauthController {
 
     oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
 
-    if(oauthResponse.getType().trim().equals("sign-in") ){
+    if(oauthResponse.getType().trim().equals(SignType.SIGNIN.getType()) ){
       return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
           new SingleObject<>(oauthService.loginWithToken(provider, accessToken)));
     }
@@ -50,9 +51,6 @@ public class OauthController {
       return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
           new SingleObject<>(oauthResponse));
     }
-
-
-
   }
 
   /**
@@ -112,8 +110,6 @@ public class OauthController {
   @PutMapping("/api/oauth2/{memberId}")
   public ApiResponse checkNickName(@PathVariable String memberId, @RequestBody UpdateRequest updateRequest) {
 
-
-    log.info("updateRequest.getNickName() : "+ updateRequest.getNickName());
     Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(changeNickName));

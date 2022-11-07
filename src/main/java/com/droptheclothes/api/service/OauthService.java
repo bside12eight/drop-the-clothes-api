@@ -57,8 +57,6 @@ public class OauthService {
     Member member = getUserProfile(providerName, tokenResponse);
     memberRepository.save(member); // 회원가입
 
-    log.info("&&&&&&&&&&&&&&&&&&&&&&&& login서비스 진입");
-
     // 3. 앱에 전달할 jwt 토큰 발행하기
     String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getMemberId()));
     String refreshToken = jwtTokenProvider.createRefreshToken();
@@ -157,7 +155,11 @@ public class OauthService {
     if(providerName.equals(Provider.kakao.name())){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
-    } else {
+    }
+    else if(providerName.equals(Provider.apple.name())){
+      //oauth2UserInfo = new AppleUserInfo(userAttributes);
+    }
+    else {
       log.info("허용되지 않은 AUTH 접근입니다");
     }
 
@@ -213,8 +215,11 @@ public class OauthService {
    */
   private Map<String, Object> getUserAttributes(String providerName, OauthTokenResponse tokenResponse){
     String uri = "";
-    if(providerName.equals("kakao")) {
+    if(providerName.equals(Provider.kakao.name())) {
       uri = "https://kapi.kakao.com/v2/user/me";
+    }
+    else if(providerName.equals(Provider.apple.name())){
+      ;
     }
 
     return WebClient.create()
