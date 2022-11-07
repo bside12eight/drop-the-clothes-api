@@ -2,7 +2,7 @@ package com.droptheclothes.api.controller;
 
 import com.droptheclothes.api.model.base.ApiResponse;
 import com.droptheclothes.api.model.base.ApiResponseHeader;
-import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.ClothingBinReportService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class ClothingBinReportController {
 
     @PostMapping(value = "/api/clothing-bins/report/new",
                  consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ApiResponse reportNewClothingBin(@RequestPart ReportClothingBinRequest request,
+    public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) MultipartFile image) {
         clothingBinReportService.reportNewClothingBin(request, image);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
@@ -31,7 +31,7 @@ public class ClothingBinReportController {
 
     @PutMapping("/api/clothing-bins/report/{clothingBinId}")
     public ApiResponse reportUpdatedClothingBin(@PathVariable Long clothingBinId,
-                                                @RequestPart ReportClothingBinRequest request,
+                                                @RequestPart ClothingBinReportRequest request,
                                                 @RequestPart(required = false) MultipartFile image) {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }

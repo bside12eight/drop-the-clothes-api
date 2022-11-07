@@ -1,6 +1,6 @@
 package com.droptheclothes.api.repository;
 
-import com.droptheclothes.api.model.dto.ClothingBinResponse;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinResponse;
 import java.util.List;
 
 public interface ClothingBinRepositoryCustom {

@@ -1,14 +1,14 @@
 package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.exception.DropTheClothesApiException;
-import com.droptheclothes.api.model.dto.ReportClothingBinRequest;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.model.entity.Report;
 import com.droptheclothes.api.model.entity.ReportMember;
 import com.droptheclothes.api.model.entity.pk.ReportMemberId;
 import com.droptheclothes.api.model.enums.ReportType;
 import com.droptheclothes.api.repository.ReportMemberRepository;
-import com.droptheclothes.api.repository.ReportRepository;
+import com.droptheclothes.api.repository.ClothingBinReportRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,19 +25,19 @@ public class ClothingBinReportService {
 
     private final ObjectStorageService objectStorageService;
 
-    private final ReportRepository reportRepository;
+    private final ClothingBinReportRepository clothingBinReportRepository;
 
     private final ReportMemberRepository reportMemberRepository;
 
     @Transactional
-    public void reportNewClothingBin(ReportClothingBinRequest request, MultipartFile image) {
+    public void reportNewClothingBin(ClothingBinReportRequest request, MultipartFile image) {
         if (clothingBinService.isRegisteredClothingBin(request.getAddress())) {
             throw new IllegalArgumentException("해당 위치에는 이미 등록된 의류수거함이 존재합니다.");
         }
 
         Member member = memberService.getMemberById(request.getMemberId());
 
-        Report report = reportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
+        Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
                                         .orElse(Report.of(request));
 
         if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
@@ -57,7 +57,7 @@ public class ClothingBinReportService {
 
     private void updateClothingBinReport(Report report) {
         report.addReportCount();
-        reportRepository.save(report);
+        clothingBinReportRepository.save(report);
     }
 
     private String storeClothingBinReportImage(Report report, MultipartFile image) {

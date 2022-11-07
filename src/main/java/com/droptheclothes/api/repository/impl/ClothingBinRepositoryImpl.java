@@ -1,6 +1,6 @@
 package com.droptheclothes.api.repository.impl;
 
-import com.droptheclothes.api.model.dto.ClothingBinResponse;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinResponse;
 import com.droptheclothes.api.repository.ClothingBinRepositoryCustom;
 import java.util.List;
 import javax.persistence.EntityManager;

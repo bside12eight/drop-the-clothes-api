@@ -1,4 +1,4 @@
-package com.droptheclothes.api.model.dto;
+package com.droptheclothes.api.model.dto.clothingbin;
 
 
 import com.droptheclothes.api.model.entity.ClothingBin;

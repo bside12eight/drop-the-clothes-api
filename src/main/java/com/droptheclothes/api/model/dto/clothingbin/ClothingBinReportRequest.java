@@ -1,4 +1,4 @@
-package com.droptheclothes.api.model.dto;
+package com.droptheclothes.api.model.dto.clothingbin;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportClothingBinRequest {
+public class ClothingBinReportRequest {
 
     private String memberId;
 
