@@ -54,9 +54,9 @@ public class MyInfoController {
     @GetMapping("/api/my/keep-or-drop/article")
     public ApiResponse getMyKeepOrDropArticles() {
         List<KeepOrDropArticleResponse> dummyResponse = new ArrayList<>();
-        dummyResponse.add(new KeepOrDropArticleResponse("title1", "desc1", LocalDateTime.now()));
-        dummyResponse.add(new KeepOrDropArticleResponse("title2", "desc2", LocalDateTime.now()));
-        dummyResponse.add(new KeepOrDropArticleResponse("title3", "desc3", LocalDateTime.now()));
+        dummyResponse.add(KeepOrDropArticleResponse.builder().articleId(1L).title("title1").description("desc1").createdAt(LocalDateTime.now()).build());
+        dummyResponse.add(KeepOrDropArticleResponse.builder().articleId(2L).title("title2").description("desc2").createdAt(LocalDateTime.now()).build());
+        dummyResponse.add(KeepOrDropArticleResponse.builder().articleId(3L).title("title3").description("desc3").createdAt(LocalDateTime.now()).build());
 
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(dummyResponse));
     }

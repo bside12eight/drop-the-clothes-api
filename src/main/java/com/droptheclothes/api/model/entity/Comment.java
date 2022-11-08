@@ -36,7 +36,7 @@ public class Comment {
     private Comment parent;
 
     @OneToMany(mappedBy = "parent")
-    private Set<Comment> childs = new HashSet<>();
+    private Set<Comment> children = new HashSet<>();
 
     private int listOrder;
 
