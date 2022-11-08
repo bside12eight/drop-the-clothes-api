@@ -1,10 +1,12 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.model.dto.ClothingBinResponse;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinResponse;
 import java.time.LocalDateTime;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SqlResultSetMapping;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import lombok.Getter;
     classes = @ConstructorResult(
             targetClass = ClothingBinResponse.class,
             columns = {
+                @ColumnResult(name = "clothingBinId", type = Long.class),
                 @ColumnResult(name = "name", type = String.class),
                 @ColumnResult(name ="address", type = String.class),
                 @ColumnResult(name = "detailedAddress", type = String.class),
@@ -29,6 +32,7 @@ import lombok.Getter;
 public class ClothingBin {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long clothingBinId;
 
     private String name;

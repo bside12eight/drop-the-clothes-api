@@ -1,6 +1,5 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.model.dto.NewClothingBinRequest;
 import com.droptheclothes.api.model.entity.pk.ReportMemberId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -19,30 +18,29 @@ import lombok.NoArgsConstructor;
 public class ReportMember {
 
     @Id
-    private Long reportId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reportId", referencedColumnName = "reportId")
+    private Report report;
 
     @Id
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "memberId", referencedColumnName = "memberId")
+    private Member member;
 
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reportId", insertable = false, updatable = false)
-    private Report report;
-
-    public static ReportMember of(Report report, NewClothingBinRequest request, String uploadPathAndFileName) {
+    public static ReportMember of(Report report, Member member, String uploadPathAndFileName) {
         return ReportMember.builder()
-                           .reportId(report.getReportId())
-                           .memberId(request.getMemberId())
+                           .report(report)
+                           .member(member)
                            .image(uploadPathAndFileName)
                            .build();
     }
 
     @Builder
-    public ReportMember(Long reportId, Long memberId, String image, Report report) {
-        this.reportId = reportId;
-        this.memberId = memberId;
-        this.image = image;
+    public ReportMember(Report report, Member member, String image) {
         this.report = report;
+        this.member = member;
+        this.image = image;
     }
 }

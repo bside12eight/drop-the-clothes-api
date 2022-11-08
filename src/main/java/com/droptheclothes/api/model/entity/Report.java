@@ -1,17 +1,20 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.model.dto.NewClothingBinRequest;
+import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
 import com.droptheclothes.api.model.enums.ReportStatus;
 import com.droptheclothes.api.model.enums.ReportType;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +32,9 @@ public class Report {
     @Enumerated(EnumType.STRING)
     private ReportType type;
 
-    private Long clothingBinId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clothingBinId", referencedColumnName = "clothingBinId")
+    private ClothingBin clothingBin;
 
     private String address;
 
@@ -50,10 +55,10 @@ public class Report {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "reportId")
-    private List<ReportMember> reportMembers = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
+    private Set<ReportMember> reportMembers = new HashSet<>();
 
-    public static Report of(NewClothingBinRequest request) {
+    public static Report of(ClothingBinReportRequest request) {
         return Report.builder()
                      .type(ReportType.NEW)
                      .address(request.getAddress())
@@ -69,12 +74,14 @@ public class Report {
     }
 
     @Builder
-    public Report(Long reportId, ReportType type, Long clothingBinId, String address, String detailedAddress, double latitude,
-                  double longitude, String comment, int reportCount, ReportStatus status, LocalDateTime createdAt,
-                  LocalDateTime updatedAt) {
+    public Report(Long reportId, ReportType type,
+            ClothingBin clothingBin, String address, String detailedAddress, double latitude,
+            double longitude, String comment, int reportCount,
+            ReportStatus status, LocalDateTime createdAt, LocalDateTime updatedAt,
+            Set<ReportMember> reportMembers) {
         this.reportId = reportId;
         this.type = type;
-        this.clothingBinId = clothingBinId;
+        this.clothingBin = clothingBin;
         this.address = address;
         this.detailedAddress = detailedAddress;
         this.latitude = latitude;
@@ -84,6 +91,7 @@ public class Report {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.reportMembers = reportMembers;
     }
 
     public void addReportCount() {
