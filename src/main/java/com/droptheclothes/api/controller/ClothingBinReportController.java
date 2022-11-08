@@ -25,6 +25,8 @@ public class ClothingBinReportController {
                  consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) MultipartFile image) {
+        request.checkArgumentValidation();
+
         clothingBinReportService.reportNewClothingBin(request, image);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -33,6 +35,8 @@ public class ClothingBinReportController {
     public ApiResponse reportUpdatedClothingBin(@PathVariable Long clothingBinId,
                                                 @RequestPart ClothingBinReportRequest request,
                                                 @RequestPart(required = false) MultipartFile image) {
+        request.checkArgumentValidation();
+
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 

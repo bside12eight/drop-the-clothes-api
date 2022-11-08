@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,12 +33,24 @@ public class MyInfoController {
     }
 
     @PutMapping("/api/my/info")
-    public ApiResponse updateMyInfo(@RequestParam String nickname) {
+    public ApiResponse updateMyInfo(@RequestParam(required = false) String nickname) {
+        if (StringUtils.isBlank(nickname)) {
+            throw new IllegalArgumentException("닉네임을 입력해주세요.");
+        }
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
     @PutMapping("/api/my/info/password")
-    public ApiResponse updatePassword(@RequestParam String password) {
+    public ApiResponse updatePassword(@RequestParam(required = false) String currentPassword,
+                                      @RequestParam(required = false) String password) {
+        if (StringUtils.isBlank(currentPassword)) {
+            throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+        }
+
+        if (StringUtils.isBlank(password)) {
+            throw new IllegalArgumentException("변경할 비밀번호를 입력해주세요.");
+        }
+
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 

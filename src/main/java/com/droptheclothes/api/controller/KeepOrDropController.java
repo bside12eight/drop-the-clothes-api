@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +35,8 @@ public class KeepOrDropController {
 
     @PostMapping(value = "/api/keep-or-drop/article", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse registerKeepOrDropArticle(@RequestPart KeepOrDropArticleRegisterRequest request,
-                                                 @RequestPart List<MultipartFile> files) {
+                                                 @RequestPart(required = false) List<MultipartFile> images) {
+        request.checkArgumentValidation();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
@@ -67,6 +70,9 @@ public class KeepOrDropController {
 
     @PostMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse registerArticleComment(@PathVariable Long articleId, String comment) {
+        if (StringUtils.isBlank(comment)) {
+            throw new IllegalArgumentException("댓글 내용을 입력해주세요.");
+        }
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
@@ -86,7 +92,10 @@ public class KeepOrDropController {
     }
 
     @PostMapping("/api/keep-or-drop/{articleId}/vote")
-    public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @RequestParam VoteType voteType) {
+    public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @RequestParam(required = false) VoteType voteType) {
+        if (Objects.isNull(voteType)) {
+            throw new IllegalArgumentException("투표 타입을 입력해주세요.");
+        }
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
