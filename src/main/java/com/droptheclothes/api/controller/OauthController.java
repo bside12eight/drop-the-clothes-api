@@ -12,6 +12,7 @@ import com.droptheclothes.api.model.dto.auth.UpdateRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.service.OauthService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,8 @@ public class OauthController {
 
   private final OauthService oauthService;
 
-  /**
-   * 최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api
-   * 존재하는 회원일 때에는 로그인 진행
-   */
   @PostMapping(value = "/api/oauth2/{provider}")
+  @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
 
     String accessToken = loginRequest.getAccessToken();
@@ -53,10 +51,8 @@ public class OauthController {
     }
   }
 
-  /**
-   * 회원가입 api
-   */
   @PostMapping(value = "/api/oauth2/{provider}/signup")
+  @Operation(summary = "회원가입 api", description = "회원가입 api")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
 
     String accessToken = joinRequest.getAccessToken();
@@ -81,22 +77,16 @@ public class OauthController {
         new SingleObject<>(loginResponse));
   }
 
-
-  /**
-   * 닉네임 중복 판별 api
-   */
   @GetMapping("/api/oauth2/{nickName}")
+  @Operation(summary = "닉네임 중복 판별 api", description = "닉네임 중복 판별 api")
   public ApiResponse checkNickName(@PathVariable String nickName) {
     Boolean checkNickName = oauthService.isExistNickName(nickName);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(checkNickName));
   }
 
-
-  /**
-   * 로그인 유저 정보 판별 api
-   */
   @GetMapping("/api/oauth2/profile")
+  @Operation(summary = "로그인 유저 정보 판별 api", description = "로그인 유저 정보 판별 api")
   public ApiResponse getProfileById(@RequestParam String memberId) {
     OauthResponse oauthResponse = oauthService.getProfileById(memberId);
 
@@ -104,10 +94,8 @@ public class OauthController {
         new SingleObject<>(oauthResponse));
   }
 
-  /**
-   * 닉네임 수정 api
-   */
   @PutMapping("/api/oauth2/{memberId}")
+  @Operation(summary = "닉네임 수정 api", description = "닉네임 수정 api")
   public ApiResponse checkNickName(@PathVariable String memberId, @RequestBody UpdateRequest updateRequest) {
 
     Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
@@ -115,19 +103,13 @@ public class OauthController {
         new SingleObject<>(changeNickName));
   }
 
-  /**
-   * 회원탈퇴 api
-   */
   @DeleteMapping("/api/oauth2/{memberId}")
+  @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
   public ApiResponse deleteProfile(@PathVariable String memberId) {
     Boolean isDelete = oauthService.deleteProfile(memberId);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(isDelete));
   }
-
-
-
-
 
 
 
