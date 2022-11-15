@@ -62,6 +62,7 @@ public class OauthService {
     String refreshToken = jwtTokenProvider.createRefreshToken();
 
     return LoginResponse.builder()
+        .memberId(member.getMemberId())
         .nickName(member.getNickName())
         .email(member.getEmail())
         .accessToken(accessToken)

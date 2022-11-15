@@ -103,9 +103,9 @@ public class OauthController {
         new SingleObject<>(changeNickName));
   }
 
-  @DeleteMapping("/api/oauth2/{memberId}")
+  @DeleteMapping("/api/oauth2")
   @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
-  public ApiResponse deleteProfile(@PathVariable String memberId) {
+  public ApiResponse deleteProfile(@RequestParam String memberId) {
     Boolean isDelete = oauthService.deleteProfile(memberId);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(isDelete));
