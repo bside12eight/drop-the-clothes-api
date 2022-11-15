@@ -103,9 +103,9 @@ public class OauthController {
         new SingleObject<>(changeNickName));
   }
 
-  @DeleteMapping("/api/oauth2")
+  @DeleteMapping("/api/oauth2/{memberId}")
   @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
-  public ApiResponse deleteProfile(@RequestParam String memberId) {
+  public ApiResponse deleteProfile(@PathVariable String memberId) {
     Boolean isDelete = oauthService.deleteProfile(memberId);
     return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
         new SingleObject<>(isDelete));
@@ -114,6 +114,7 @@ public class OauthController {
 
 
   @PostMapping("/api/refresh/oauth2")
+  @Operation(summary = "사용 금지(작업 중)", description = "토큰 갱신 api")
   public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
     TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
     return ResponseEntity.ok().body(tokenResponse);
