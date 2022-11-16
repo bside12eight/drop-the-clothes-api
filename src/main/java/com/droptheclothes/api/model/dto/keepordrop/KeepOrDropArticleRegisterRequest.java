@@ -8,11 +8,17 @@ public class KeepOrDropArticleRegisterRequest {
 
     private String category;
 
+    private String title;
+
     private String description;
 
     public boolean checkArgumentValidation() {
         if (StringUtils.isBlank(category)) {
             throw new IllegalArgumentException("카테고리를 설정해주세요.");
+        }
+
+        if (StringUtils.isBlank(title)) {
+            throw new IllegalArgumentException("제목을 설정해주세요.");
         }
 
         if (StringUtils.isBlank(description)) {

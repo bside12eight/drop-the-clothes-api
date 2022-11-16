@@ -59,10 +59,12 @@ public class ClothingBinReportService {
         updateReportCountAndSaveClothingBinReport(report);
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
 
-        List<String> uploadPathAndFileName = storeClothingBinReportImages(report, images);
-        uploadPathAndFileName.stream().forEach(filepath -> {
-            reportImageRepository.save(ReportImage.of(reportMember, filepath));
-        });
+        if (!Objects.isNull(images)) {
+            List<String> uploadPathAndFileName = storeClothingBinReportImages(report, images);
+            uploadPathAndFileName.stream().forEach(filepath -> {
+                reportImageRepository.save(ReportImage.of(reportMember, filepath));
+            });
+        }
     }
 
     @Transactional
@@ -84,10 +86,12 @@ public class ClothingBinReportService {
         updateReportCountAndSaveClothingBinReport(report);
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
 
-        List<String> uploadPathAndFileName = storeClothingBinReportImages(report, images);
-        uploadPathAndFileName.stream().forEach(filepath -> {
-            reportImageRepository.save(ReportImage.of(reportMember, filepath));
-        });
+        if (!Objects.isNull(images)) {
+            List<String> uploadPathAndFileName = storeClothingBinReportImages(report, images);
+            uploadPathAndFileName.stream().forEach(filepath -> {
+                reportImageRepository.save(ReportImage.of(reportMember, filepath));
+            });
+        }
     }
 
     @Transactional
