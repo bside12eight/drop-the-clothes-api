@@ -27,7 +27,6 @@ public class ClothingBinReportController {
     public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
-
         clothingBinReportService.reportNewClothingBin(request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -35,14 +34,18 @@ public class ClothingBinReportController {
     @PutMapping("/api/clothing-bins/report/{clothingBinId}")
     public ApiResponse reportUpdatedClothingBin(@PathVariable Long clothingBinId,
                                                 @RequestPart ClothingBinReportRequest request,
-                                                @RequestPart(required = false) MultipartFile image) {
+                                                @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
-
+        clothingBinReportService.reportUpdatedClothingBin(clothingBinId, request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
     @DeleteMapping("/api/clothing-bins/report/{clothingBinId}")
-    public ApiResponse reportDeletedClothingBin(@PathVariable Long clothingBinId) {
+    public ApiResponse reportDeletedClothingBin(@PathVariable Long clothingBinId,
+                                                @RequestPart ClothingBinReportRequest request,
+                                                @RequestPart(required = false) List<MultipartFile> images) {
+        request.checkArgumentValidation();
+        clothingBinReportService.reportDeletedClothingBin(clothingBinId, request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 }

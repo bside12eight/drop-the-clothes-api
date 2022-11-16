@@ -58,9 +58,9 @@ public class Report {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
     private Set<ReportMember> reportMembers = new HashSet<>();
 
-    public static Report of(ClothingBinReportRequest request) {
+    public static Report of(ClothingBinReportRequest request, ReportType reportType) {
         return Report.builder()
-                     .type(ReportType.NEW)
+                     .type(reportType)
                      .address(request.getAddress())
                      .detailedAddress(request.getDetailedAddress())
                      .latitude(request.getLatitude())
@@ -71,6 +71,22 @@ public class Report {
                      .createdAt(LocalDateTime.now())
                      .updatedAt(LocalDateTime.now())
                      .build();
+    }
+
+    public static Report of(ClothingBin clothingBin, ClothingBinReportRequest request, ReportType reportType) {
+        return Report.builder()
+                .type(reportType)
+                .clothingBin(clothingBin)
+                .address(request.getAddress())
+                .detailedAddress(request.getDetailedAddress())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .comment(request.getComment())
+                .reportCount(0)
+                .status(ReportStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     @Builder
