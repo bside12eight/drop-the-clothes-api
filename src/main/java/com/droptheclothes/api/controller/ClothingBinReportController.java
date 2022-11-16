@@ -6,6 +6,7 @@ import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.ClothingBinReportService;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ClothingBinReportController {
 
+    private final int MAX_IMAGE_COUNT = 3;
+
     private final ClothingBinReportService clothingBinReportService;
 
     @PostMapping(value = "/api/clothing-bins/report/new",
@@ -27,6 +30,8 @@ public class ClothingBinReportController {
     public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
+        checkImageCountValidation(images);
+
         clothingBinReportService.reportNewClothingBin(request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -36,6 +41,8 @@ public class ClothingBinReportController {
                                                 @RequestPart ClothingBinReportRequest request,
                                                 @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
+        checkImageCountValidation(images);
+
         clothingBinReportService.reportUpdatedClothingBin(clothingBinId, request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -45,7 +52,15 @@ public class ClothingBinReportController {
                                                 @RequestPart ClothingBinReportRequest request,
                                                 @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
+        checkImageCountValidation(images);
+
         clothingBinReportService.reportDeletedClothingBin(clothingBinId, request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
+    }
+
+    private void checkImageCountValidation(List<MultipartFile> images) {
+        if (!Objects.isNull(images) && images.size() > MAX_IMAGE_COUNT) {
+            throw new IllegalArgumentException("이미지 파일은 최대 3개까지 업로드 가능합니다.");
+        }
     }
 }
