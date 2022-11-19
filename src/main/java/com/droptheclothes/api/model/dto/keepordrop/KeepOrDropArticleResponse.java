@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -69,5 +70,22 @@ public class KeepOrDropArticleResponse {
         }
 
         return responses;
+    }
+
+    public static KeepOrDropArticleResponse of(Article article) {
+        return KeepOrDropArticleResponse.builder()
+                .articleId(article.getArticleId())
+                .category(article.getCategory().getName())
+                .title(article.getTitle())
+                .description(article.getDescription())
+                .keepCount(article.getKeepCount())
+                .dropCount(article.getDropCount())
+                .nickname(article.getMember().getNickName())
+                .commentCount(article.getComments().size())
+                .images(new ArrayList<>(article.getArticleImages().stream()
+                        .map(articleImage -> articleImage.getFilepath())
+                        .collect(Collectors.toList())))
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

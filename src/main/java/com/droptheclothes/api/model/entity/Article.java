@@ -2,6 +2,8 @@ package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +43,12 @@ public class Article {
 
     private int chargedCount;
 
+    @OneToMany(mappedBy = "article")
+    private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(mappedBy = "article")
+    private Set<ArticleImage> articleImages = new HashSet<>();
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -63,7 +72,8 @@ public class Article {
     @Builder
     public Article(Long articleId, Member member, Category category, String title,
             String description, int keepCount, int dropCount, int chargedCount,
-            LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+            Set<Comment> comments, LocalDateTime createdAt, LocalDateTime updatedAt,
+            LocalDateTime deletedAt) {
         this.articleId = articleId;
         this.member = member;
         this.category = category;
@@ -72,6 +82,7 @@ public class Article {
         this.keepCount = keepCount;
         this.dropCount = dropCount;
         this.chargedCount = chargedCount;
+        this.comments = comments;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;

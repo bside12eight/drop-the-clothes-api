@@ -52,21 +52,8 @@ public class KeepOrDropController {
 
     @GetMapping("/api/keep-or-drop/{articleId}")
     public ApiResponse getKeepOrDropArticle(@PathVariable Long articleId) {
-        KeepOrDropArticleResponse dummyResponse = KeepOrDropArticleResponse.builder()
-                .articleId(1L)
-                .category("가방")
-                .title("title1")
-                .description("desc1")
-                .keepCount(16)
-                .dropCount(4)
-                .nickname("nickname1")
-                .commentCount(5)
-                .images(Arrays.asList("https://helpx.adobe.com/content/dam/help/en/photoshop/using/quick-actions/remove-background-before-qa1.png",
-                                      "https://i.pinimg.com/564x/32/f2/43/32f24381b05fcf53d8088c98963fe326.jpg"))
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(dummyResponse));
+        KeepOrDropArticleResponse response = keepOrDropService.getKeepOrDropArticle(articleId);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
 
     @PostMapping("/api/keep-or-drop/{articleId}/comments")

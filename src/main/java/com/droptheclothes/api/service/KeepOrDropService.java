@@ -87,4 +87,11 @@ public class KeepOrDropService {
         }
         return uploadPaths;
     }
+
+    public KeepOrDropArticleResponse getKeepOrDropArticle(Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+
+        return KeepOrDropArticleResponse.of(article);
+    }
 }
