@@ -73,6 +73,7 @@ public class KeepOrDropController {
         if (Objects.isNull(voteType)) {
             throw new IllegalArgumentException("투표 타입을 입력해주세요.");
         }
+        keepOrDropService.voteKeepOrDrop(articleId, voteType);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 

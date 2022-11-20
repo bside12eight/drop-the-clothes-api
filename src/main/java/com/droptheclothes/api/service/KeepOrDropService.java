@@ -10,16 +10,20 @@ import com.droptheclothes.api.model.entity.ArticleImage;
 import com.droptheclothes.api.model.entity.Category;
 import com.droptheclothes.api.model.entity.Comment;
 import com.droptheclothes.api.model.entity.Member;
+import com.droptheclothes.api.model.entity.Vote;
+import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.repository.ArticleImageRepository;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.CategoryRepository;
 import com.droptheclothes.api.repository.CommentRepository;
+import com.droptheclothes.api.repository.VoteRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,8 @@ public class KeepOrDropService {
     private final ArticleImageRepository articleImageRepository;
 
     private final CommentRepository commentRepository;
+
+    private final VoteRepository voteRepository;
 
     @Transactional
     public void registerKeepOrDropArticle(KeepOrDropArticleRegisterRequest request, List<MultipartFile> images) {
@@ -149,6 +155,44 @@ public class KeepOrDropService {
         });
 
         return parents;
+    }
+
+    @Transactional
+    public void voteKeepOrDrop(Long articleId, VoteType voteType) {
+        // TODO: Member ID 처리
+        final String MEMBER_ID = "kakao_2467164020";
+        Member member = memberService.getMemberById(MEMBER_ID);
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+
+        Optional<Vote> optionalVote = voteRepository.findByMemberAndArticle(member, article);
+        if (optionalVote.isEmpty()) {
+            Vote vote = Vote.builder()
+                    .member(member)
+                    .article(article)
+                    .voteType(voteType)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            voteRepository.save(vote);
+            article.vote(voteType);
+        } else {
+            Vote beforeVote = optionalVote.get();
+            if (beforeVote.getVoteType().equals(voteType)) {
+                article.cancelVote(voteType);
+            } else {
+                article.cancelVote(voteType.equals(VoteType.KEEP) ? VoteType.DROP : VoteType.KEEP);
+                Vote vote = Vote.builder()
+                        .member(member)
+                        .article(article)
+                        .voteType(voteType)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+                voteRepository.save(vote);
+                article.vote(voteType);
+            }
+            voteRepository.delete(beforeVote);
+        }
     }
 
     private List<String> storeArticleImages(Article article, List<MultipartFile> images) {

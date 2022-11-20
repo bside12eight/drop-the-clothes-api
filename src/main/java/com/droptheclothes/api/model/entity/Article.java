@@ -1,6 +1,7 @@
 package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
+import com.droptheclothes.api.model.enums.VoteType;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,5 +87,21 @@ public class Article {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+    }
+
+    public int vote(VoteType voteType) {
+        if (voteType.equals(VoteType.KEEP)) {
+            return this.keepCount++;
+        } else {
+            return this.dropCount++;
+        }
+    }
+
+    public int cancelVote(VoteType voteType) {
+        if (voteType.equals(VoteType.KEEP)) {
+            return this.keepCount--;
+        } else {
+            return this.dropCount--;
+        }
     }
 }
