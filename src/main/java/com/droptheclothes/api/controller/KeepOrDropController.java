@@ -4,6 +4,7 @@ import com.droptheclothes.api.model.base.ApiResponse;
 import com.droptheclothes.api.model.base.ApiResponseHeader;
 import com.droptheclothes.api.model.base.CollectionObject;
 import com.droptheclothes.api.model.base.SingleObject;
+import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
@@ -17,11 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,48 +31,37 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class KeepOrDropController {
 
+    private final int MAX_IMAGE_COUNT = 3;
+
     private final KeepOrDropService keepOrDropService;
 
-    @PostMapping(value = "/api/keep-or-drop/article", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/keep-or-drop/article")
     public ApiResponse registerKeepOrDropArticle(@RequestPart KeepOrDropArticleRegisterRequest request,
                                                  @RequestPart(required = false) List<MultipartFile> images) {
         request.checkArgumentValidation();
+        checkImageCountValidation(images);
+
+        keepOrDropService.registerKeepOrDropArticle(request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
     @GetMapping("/api/keep-or-drop")
     public ApiResponse getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
-        List<KeepOrDropArticleResponse> dummyResponse = new ArrayList<>();
-        dummyResponse.add(KeepOrDropArticleResponse.builder().articleId(1L).category("가방").title("title1").description("desc1").build());
-        dummyResponse.add(KeepOrDropArticleResponse.builder().articleId(2L).category("옷").title("title2").description("desc2").build());
-
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(dummyResponse));
+        List<KeepOrDropArticleResponse> response = keepOrDropService.getKeepOrDropArticles(request);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
     @GetMapping("/api/keep-or-drop/{articleId}")
     public ApiResponse getKeepOrDropArticle(@PathVariable Long articleId) {
-        KeepOrDropArticleResponse dummyResponse = KeepOrDropArticleResponse.builder()
-                .articleId(1L)
-                .category("가방")
-                .title("title1")
-                .description("desc1")
-                .keepCount(16)
-                .dropCount(4)
-                .nickname("nickname1")
-                .commentCount(5)
-                .images(Arrays.asList("https://helpx.adobe.com/content/dam/help/en/photoshop/using/quick-actions/remove-background-before-qa1.png",
-                                      "https://i.pinimg.com/564x/32/f2/43/32f24381b05fcf53d8088c98963fe326.jpg"))
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(dummyResponse));
+        KeepOrDropArticleResponse response = keepOrDropService.getKeepOrDropArticle(articleId);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
 
     @PostMapping("/api/keep-or-drop/{articleId}/comments")
-    public ApiResponse registerArticleComment(@PathVariable Long articleId, String comment) {
-        if (StringUtils.isBlank(comment)) {
-            throw new IllegalArgumentException("댓글 내용을 입력해주세요.");
-        }
+    public ApiResponse registerArticleComment(@PathVariable Long articleId,
+                                              @RequestBody ArticleCommentRegisterRequest request) {
+        request.checkArgumentValidation();
+        keepOrDropService.registerArticleComment(articleId, request);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
@@ -101,10 +90,13 @@ public class KeepOrDropController {
 
     @GetMapping("/api/keep-or-drop/categories")
     public ApiResponse getItemCategories() {
-        List<String> categories = new ArrayList<>();
-        categories.add("가방");
-        categories.add("옷");
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new CollectionObject<>(keepOrDropService.getItemCategories()));
+    }
 
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(categories));
+    private void checkImageCountValidation(List<MultipartFile> images) {
+        if (!Objects.isNull(images) && images.size() > MAX_IMAGE_COUNT) {
+            throw new IllegalArgumentException("이미지 파일은 최대 3개까지 업로드 가능합니다.");
+        }
     }
 }
