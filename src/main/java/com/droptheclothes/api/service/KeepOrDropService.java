@@ -1,15 +1,19 @@
 package com.droptheclothes.api.service;
 
+import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequest;
 import com.droptheclothes.api.model.entity.Article;
 import com.droptheclothes.api.model.entity.ArticleImage;
 import com.droptheclothes.api.model.entity.Category;
+import com.droptheclothes.api.model.entity.Comment;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.repository.ArticleImageRepository;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.CategoryRepository;
+import com.droptheclothes.api.repository.CommentRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +37,8 @@ public class KeepOrDropService {
     private final ArticleRepository articleRepository;
 
     private final ArticleImageRepository articleImageRepository;
+
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void registerKeepOrDropArticle(KeepOrDropArticleRegisterRequest request, List<MultipartFile> images) {
@@ -70,6 +76,44 @@ public class KeepOrDropService {
                 .collect(Collectors.toList());
     }
 
+    public KeepOrDropArticleResponse getKeepOrDropArticle(Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+
+        return KeepOrDropArticleResponse.of(article);
+    }
+
+    @Transactional
+    public void registerArticleComment(Long articleId, ArticleCommentRegisterRequest request) {
+        // TODO: Member ID 처리
+        final String MEMBER_ID = "kakao_2467164020";
+        Member member = memberService.getMemberById(MEMBER_ID);
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+
+        Comment parentComment = null;
+        int listOrder;
+        if (!Objects.isNull(request.getParentId())) {
+            parentComment = commentRepository.findById(request.getParentId()).orElse(null);
+            listOrder = parentComment.getChildren().size();
+        } else {
+            listOrder = commentRepository.getCommentListOrder(articleId, request.getParentId()).intValue();
+        }
+
+        Comment commentEntity = Comment.builder()
+                .member(member)
+                .article(article)
+                .comment(request.getComment())
+                .parent(parentComment)
+                .listOrder(listOrder + 1)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        commentRepository.save(commentEntity);
+    }
+
     private List<String> storeArticleImages(Article article, List<MultipartFile> images) {
         final int MAX_IMAGE_FILE_COUNT = 3;
         if (images.size() > MAX_IMAGE_FILE_COUNT) {
@@ -86,12 +130,5 @@ public class KeepOrDropService {
             uploadPaths.add(uploadPath);
         }
         return uploadPaths;
-    }
-
-    public KeepOrDropArticleResponse getKeepOrDropArticle(Long articleId) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
-
-        return KeepOrDropArticleResponse.of(article);
     }
 }

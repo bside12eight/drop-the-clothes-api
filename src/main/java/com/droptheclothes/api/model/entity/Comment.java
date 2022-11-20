@@ -11,10 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class Comment {
 
     @Id
@@ -45,4 +48,20 @@ public class Comment {
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+    @Builder
+    public Comment(Long commentId, Member member, Article article, String comment,
+            Comment parent, Set<Comment> children, int listOrder, LocalDateTime createdAt,
+            LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        this.commentId = commentId;
+        this.member = member;
+        this.article = article;
+        this.comment = comment;
+        this.parent = parent;
+        this.children = children;
+        this.listOrder = listOrder;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+    }
 }
