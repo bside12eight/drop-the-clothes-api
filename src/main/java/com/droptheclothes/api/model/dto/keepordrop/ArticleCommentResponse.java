@@ -10,6 +10,8 @@ import lombok.Getter;
 @Getter
 public class ArticleCommentResponse {
 
+    private Long commentId;
+
     private String nickname;
 
     private String comment;
@@ -20,11 +22,16 @@ public class ArticleCommentResponse {
     private LocalDateTime createdAt;
 
     @Builder
-    public ArticleCommentResponse(String nickname, String comment,
+    public ArticleCommentResponse(Long commentId, String nickname, String comment,
             List<ArticleCommentResponse> children, LocalDateTime createdAt) {
+        this.commentId = commentId;
         this.nickname = nickname;
         this.comment = comment;
         this.children = children;
         this.createdAt = createdAt;
+    }
+
+    public void setChildren(List<ArticleCommentResponse> children) {
+        this.children = children;
     }
 }

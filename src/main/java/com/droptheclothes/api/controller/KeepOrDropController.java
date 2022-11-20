@@ -12,9 +12,6 @@ import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequ
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.service.KeepOrDropService;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -67,17 +64,8 @@ public class KeepOrDropController {
 
     @GetMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse getArticleComments(@PathVariable Long articleId) {
-        ArticleCommentResponse firstChild = ArticleCommentResponse.builder().nickname("child1").comment("child1").createdAt(LocalDateTime.now()).build();
-        ArticleCommentResponse secondChild = ArticleCommentResponse.builder().nickname("child2").comment("child2").createdAt(LocalDateTime.now()).build();
-
-        ArticleCommentResponse firstParent = ArticleCommentResponse.builder().nickname("parent1").comment("parent1").children(Arrays.asList(firstChild, secondChild)).createdAt(LocalDateTime.now()).build();
-        ArticleCommentResponse secondParent = ArticleCommentResponse.builder().nickname("parent2").comment("parent2").createdAt(LocalDateTime.now()).build();
-
-        List<ArticleCommentResponse> dummyResponse = new ArrayList<>();
-        dummyResponse.add(firstParent);
-        dummyResponse.add(secondParent);
-
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(dummyResponse));
+        List<ArticleCommentResponse> response = keepOrDropService.getArticleComments(articleId);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
     @PostMapping("/api/keep-or-drop/{articleId}/vote")

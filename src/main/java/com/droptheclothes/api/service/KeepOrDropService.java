@@ -1,6 +1,7 @@
 package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentRegisterRequest;
+import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequest;
@@ -15,8 +16,11 @@ import com.droptheclothes.api.repository.CategoryRepository;
 import com.droptheclothes.api.repository.CommentRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -112,6 +116,39 @@ public class KeepOrDropService {
                 .build();
 
         commentRepository.save(commentEntity);
+    }
+
+    public List<ArticleCommentResponse> getArticleComments(Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+
+        Set<Comment> comments = article.getComments();
+        List<ArticleCommentResponse> parents = new ArrayList<>();
+        Map<Long, List<ArticleCommentResponse>> childrenMap = new HashMap<>();
+
+        comments.forEach(comment -> {
+            ArticleCommentResponse response = ArticleCommentResponse.builder()
+                    .commentId(comment.getCommentId())
+                    .nickname(comment.getMember().getNickName())
+                    .comment(comment.getComment())
+                    .createdAt(comment.getCreatedAt())
+                    .build();
+
+            if (Objects.isNull(comment.getParent())) {
+                parents.add(response);
+            } else {
+                Long parentId = comment.getParent().getCommentId();
+                List<ArticleCommentResponse> children = childrenMap.getOrDefault(parentId, new ArrayList<>());
+                children.add(response);
+                childrenMap.put(parentId, children);
+            }
+        });
+
+        parents.stream().forEach(response -> {
+            response.setChildren(childrenMap.get(response.getCommentId()));
+        });
+
+        return parents;
     }
 
     private List<String> storeArticleImages(Article article, List<MultipartFile> images) {
