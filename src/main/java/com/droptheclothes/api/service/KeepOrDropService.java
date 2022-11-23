@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -128,7 +127,17 @@ public class KeepOrDropService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
 
-        Set<Comment> comments = article.getComments();
+        ArrayList<Comment> comments = new ArrayList<>(article.getComments());
+        comments.sort((o1, o2) -> {
+            if (o1.getCreatedAt().isEqual(o2.getCreatedAt())) {
+                return 0;
+            } else if (o1.getCreatedAt().isBefore(o2.getCreatedAt())) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+
         List<ArticleCommentResponse> parents = new ArrayList<>();
         Map<Long, List<ArticleCommentResponse>> childrenMap = new HashMap<>();
 
@@ -150,9 +159,7 @@ public class KeepOrDropService {
             }
         });
 
-        parents.stream().forEach(response -> {
-            response.setChildren(childrenMap.get(response.getCommentId()));
-        });
+        parents.stream().forEach(response -> response.setChildren(childrenMap.get(response.getCommentId())));
 
         return parents;
     }
