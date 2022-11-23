@@ -1,15 +1,19 @@
 package com.droptheclothes.api.model.dto.keepordrop;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public class KeepOrDropArticleRegisterRequest {
 
+    @Schema(required = true)
     private String category;
 
+    @Schema(required = true)
     private String title;
 
+    @Schema(required = true)
     private String description;
 
     public KeepOrDropArticleRegisterRequest(String category, String title, String description) {

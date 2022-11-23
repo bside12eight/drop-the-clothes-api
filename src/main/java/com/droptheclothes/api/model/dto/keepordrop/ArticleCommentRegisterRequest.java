@@ -1,11 +1,13 @@
 package com.droptheclothes.api.model.dto.keepordrop;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public class ArticleCommentRegisterRequest {
 
+    @Schema(required = true)
     private String comment;
 
     private Long parentId;

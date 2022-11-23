@@ -1,5 +1,6 @@
 package com.droptheclothes.api.model.dto.clothingbin;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,12 +12,16 @@ import org.apache.commons.lang3.StringUtils;
 @AllArgsConstructor
 public class ClothingBinReportRequest {
 
+    @Schema(required = true)
     private String address;
 
+    @Schema(required = true)
     private String detailedAddress;
 
+    @Schema(required = true)
     private Double latitude;
 
+    @Schema(required = true)
     private Double longitude;
 
     private String comment;

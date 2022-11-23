@@ -8,7 +8,6 @@ import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
-import com.droptheclothes.api.repository.ClothingBinReportRepository;
 import com.droptheclothes.api.service.MyInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -24,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyInfoController {
 
     private final MyInfoService myInfoService;
-
-    private final ClothingBinReportRepository clothingBinReportRepository;
 
     @Operation(summary = "내 정보 조회 API")
     @GetMapping("/api/my/info")
