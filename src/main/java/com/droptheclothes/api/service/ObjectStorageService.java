@@ -20,6 +20,8 @@ public class ObjectStorageService {
 
     private static final String END_POINT = "https://kr.object.ncloudstorage.com";
 
+    private static final String HOSTING_END_POINT = "http://clothing-bin.s3-website.kr.object.ncloudstorage.com/";
+
     private static final String REGION_NAME = "kr-standard";
 
     private static final String ACCESS_KEY = "rI6ncroRQ5tIBmIOSgNj";
@@ -35,13 +37,13 @@ public class ObjectStorageService {
                                                  .build();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(file.getSize());
-        String uploadFileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+        String uploadFileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssSSS")) + "." + FilenameUtils.getExtension(file.getOriginalFilename());
         String uploadPathAndFileName = directory + "/" + uploadFileName;
         try {
             s3.putObject(BUCKET_NAME, uploadPathAndFileName, file.getInputStream(), objectMetadata);
         } catch (Exception e) {
             throw new ObjectStorageException(e.getMessage());
         }
-        return uploadPathAndFileName;
+        return HOSTING_END_POINT + uploadPathAndFileName;
     }
 }
