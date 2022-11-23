@@ -1,10 +1,13 @@
 package com.droptheclothes.api.model.dto.keepordrop;
 
 import com.droptheclothes.api.model.entity.Article;
+import com.droptheclothes.api.model.entity.ArticleImage;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -59,11 +62,14 @@ public class KeepOrDropArticleResponse {
         List<KeepOrDropArticleResponse> responses = new ArrayList<>();
 
         for (Article article : articles) {
+            Iterator<ArticleImage> iterator = article.getArticleImages().iterator();
+
             KeepOrDropArticleResponse response = KeepOrDropArticleResponse.builder()
                     .articleId(article.getArticleId())
                     .category(article.getCategory().getName())
                     .title(article.getTitle())
                     .description(article.getDescription())
+                    .images(iterator.hasNext() ? Arrays.asList(iterator.next().getFilepath()) : null)
                     .createdAt(article.getCreatedAt())
                     .build();
 
