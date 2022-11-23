@@ -10,6 +10,7 @@ import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.repository.ClothingBinReportRepository;
 import com.droptheclothes.api.service.MyInfoService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -26,12 +27,14 @@ public class MyInfoController {
 
     private final ClothingBinReportRepository clothingBinReportRepository;
 
+    @Operation(summary = "내 정보 조회 API")
     @GetMapping("/api/my/info")
     public ApiResponse getMyInfo() {
         MyInfoResponse response = myInfoService.getMyInfo();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
 
+    @Operation(summary = "닉네임 변경 API")
     @PutMapping("/api/my/info/nickname")
     public ApiResponse updateNickname(@RequestParam(required = false) String nickname) {
         if (StringUtils.isBlank(nickname)) {
@@ -41,6 +44,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @Operation(summary = "비밀번호 변경 API")
     @PutMapping("/api/my/info/password")
     public ApiResponse updatePassword(@RequestParam(required = false) String currentPassword,
                                       @RequestParam(required = false) String password) {
@@ -56,12 +60,14 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @Operation(summary = "나의 의류수거함 제보 목록 조회 API")
     @GetMapping("/api/my/clothing-bin/report")
     public ApiResponse getMyClothingBinReports() {
         List<ClothingBinReportResponse> response = myInfoService.getMyClothingBinReports();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @Operation(summary = "나의 버릴까 말까 글 목록 조회 API")
     @GetMapping("/api/my/keep-or-drop/article")
     public ApiResponse getMyKeepOrDropArticles() {
         List<KeepOrDropArticleResponse> response = myInfoService.getMyKeepOrDropArticles();
