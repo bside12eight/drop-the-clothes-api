@@ -57,6 +57,7 @@ public class KeepOrDropArticleResponse {
 
     public static List<KeepOrDropArticleResponse> of(List<Article> articles) {
         List<KeepOrDropArticleResponse> responses = new ArrayList<>();
+
         for (Article article : articles) {
             KeepOrDropArticleResponse response = KeepOrDropArticleResponse.builder()
                     .articleId(article.getArticleId())
