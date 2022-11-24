@@ -2,8 +2,10 @@ package com.droptheclothes.api.model.dto.auth;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class OauthResponse {
 
   private String accessToken;
