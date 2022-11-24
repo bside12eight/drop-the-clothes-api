@@ -44,6 +44,8 @@ public class Member extends BaseTimeEntity {
 
   private String profileImage;
 
+  private String isRemoved;
+
   //email,nickName, provide, providerId)
   public static Member createMember(
       String providerId
@@ -64,6 +66,10 @@ public class Member extends BaseTimeEntity {
 
   public void changeNickName(String nickName) {
     this.nickName = nickName;
+  }
+
+  public void removeMember() {
+    this.isRemoved = "Y";
   }
 
   public void changePassword(String currentPassword, String password) {
