@@ -92,7 +92,7 @@ public class KeepOrDropArticleResponse {
                 .images(new ArrayList<>(article.getArticleImages().stream()
                         .map(articleImage -> articleImage.getFilepath())
                         .collect(Collectors.toList())))
-                .createdAt(LocalDateTime.now())
+                .createdAt(article.getCreatedAt())
                 .build();
     }
 }
