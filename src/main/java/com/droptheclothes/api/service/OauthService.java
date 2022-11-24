@@ -287,11 +287,13 @@ public class OauthService {
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntity = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId,"Y");
 
     if(memberEntity != null) {
       isDelete = true;
-      memberRepository.delete(memberEntity);
+      memberEntity.removeMember();
+      memberRepository.save(memberEntity);
+      //memberRepository.delete(memberEntity);
     }
     return isDelete;
   }
