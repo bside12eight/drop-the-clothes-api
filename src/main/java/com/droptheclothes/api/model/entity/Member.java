@@ -2,6 +2,7 @@ package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.exception.DropTheClothesApiException;
 import com.droptheclothes.api.model.base.BaseTimeEntity;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -49,13 +50,13 @@ public class Member extends BaseTimeEntity {
   //email,nickName, provide, providerId)
   public static Member createMember(
       String providerId
-      , String provider
+      , LoginProviderType provider
       , String nickName
       , String email
   ){
     Member member = Member.builder()
         .memberId(providerId)
-        .provider(provider)
+        .provider(provider.toString())
         .role(Role.USER)
         .email(email)
         .nickName(nickName)

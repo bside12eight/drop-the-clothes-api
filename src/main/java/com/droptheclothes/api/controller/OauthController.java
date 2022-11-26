@@ -9,8 +9,10 @@ import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.dto.auth.UpdateRequest;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.SignType;
+import com.droptheclothes.api.service.AppleLoginService;
 import com.droptheclothes.api.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +34,17 @@ public class OauthController {
 
   private final OauthService oauthService;
 
+  private final AppleLoginService appleLoginService;
+
   @PostMapping(value = "/api/oauth2/{provider}")
   @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
-  public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
+  public ApiResponse loginWithToken2(@PathVariable LoginProviderType provider, @RequestBody LoginRequest loginRequest) {
     log.debug("loginWithToken2 executed");
     log.debug(String.format("provider: %s", provider));
     log.debug(String.format("accessToken: %s", loginRequest.getAccessToken()));
 
     String accessToken = loginRequest.getAccessToken();
-    OauthResponse oauthResponse = null;
-
-    oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
+    OauthResponse oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
 
     if(oauthResponse.getType().trim().equals(SignType.SIGNIN.getType()) ){
       return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
@@ -56,7 +58,7 @@ public class OauthController {
 
   @PostMapping(value = "/api/oauth2/{provider}/signup")
   @Operation(summary = "회원가입 api", description = "회원가입 api")
-  public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
+  public ApiResponse join(@PathVariable LoginProviderType provider, @RequestBody JoinRequest joinRequest) {
     log.debug("join executed");
     log.debug(String.format("provider: %s", provider));
     log.debug(String.format("accessToken: %s", joinRequest.getAccessToken()));

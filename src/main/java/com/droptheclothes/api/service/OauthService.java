@@ -9,7 +9,7 @@ import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.OauthTokenResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.entity.Member;
-import com.droptheclothes.api.model.enums.Provider;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.OauthRepository;
@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class OauthService {
+public class OauthService implements LoginService {
 
   private static final String BEARER_TYPE = "Bearer ";
   private final OauthRepository oauthRepository;
@@ -34,7 +34,7 @@ public class OauthService {
     oauthRepository.save(requestDto.toEntity());
   }
 
-  public LoginResponse loginWithToken(String providerName, String Token){
+  public LoginResponse loginWithToken(LoginProviderType provider, String Token){
 
     //1. 소셜 서버에 전달할 accessToken
     OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
@@ -43,7 +43,7 @@ public class OauthService {
                                                           .build();
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
-    Member member = getUserProfile(providerName, tokenResponse);
+    Member member = getUserProfile(provider, tokenResponse);
     memberRepository.save(member); // 회원가입
 
     // 3. 앱에 전달할 jwt 토큰 발행하기
@@ -63,7 +63,7 @@ public class OauthService {
 
   }
 
-  public LoginResponse joinWithToken(String providerName, String Token, String nickName){
+  public LoginResponse joinWithToken(LoginProviderType provider, String Token, String nickName){
 
     //1. 소셜 서버에 전달할 accessToken
     OauthTokenResponse tokenResponse = OauthTokenResponse.builder()
@@ -80,11 +80,11 @@ public class OauthService {
             || (nickName == null)
     ){
       type = SignType.SIGNIN.getType();
-      member = getUserProfile(providerName, tokenResponse);
+      member = getUserProfile(provider, tokenResponse);
     }
     else{
       type = SignType.SIGNUP.getType();
-      member = getUserProfileWithNewNickName(providerName, tokenResponse, nickName);
+      member = getUserProfileWithNewNickName(provider, tokenResponse, nickName);
     }
 
     memberRepository.save(member); // 회원가입
@@ -106,7 +106,7 @@ public class OauthService {
   }
 
 
-  public OauthResponse checkExistMemberWithToken(String providerName, String Token){
+  public OauthResponse checkExistMemberWithToken(LoginProviderType provider, String Token){
 
     String type = "";
 
@@ -117,7 +117,7 @@ public class OauthService {
         .build();
 
     // 2.accessToken을 사용해서 소셜 서버로부터 사용자 정보 얻기
-    Member member = getUserProfile(providerName, tokenResponse);
+    Member member = getUserProfile(provider, tokenResponse);
 
     //이미 존재하는 회원인지 검증하는 과정
     Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(member.getMemberId(), false);
@@ -141,26 +141,25 @@ public class OauthService {
    * KAKAO 소셜 로그인 서버에 Access Token을 통해 사용자 정보를 받아옴
    */
   private Member getUserProfile(
-      String providerName
+      LoginProviderType provider
       , OauthTokenResponse tokenResponse
   ){
-    Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
+    Map<String, Object> userAttributes = getUserAttributes(provider, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
 
-    if(providerName.equals(Provider.kakao.name())){
+    if(provider.equals(LoginProviderType.kakao)){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     }
-    else if(providerName.equals(Provider.apple.name())){
+    else if(provider.equals(LoginProviderType.apple)){
       //oauth2UserInfo = new AppleUserInfo(userAttributes);
     }
     else {
       log.info("허용되지 않은 AUTH 접근입니다");
     }
 
-    String provider = oauth2UserInfo.getProvider();
-    String providerId = providerName + "_" + oauth2UserInfo.getProviderId();
+    String providerId = provider + "_" + oauth2UserInfo.getProviderId();
     String nickName = oauth2UserInfo.getNickName();
     String email = oauth2UserInfo.getEmail();
 
@@ -175,22 +174,21 @@ public class OauthService {
   }
 
   private Member getUserProfileWithNewNickName(
-      String providerName
+      LoginProviderType provider
       , OauthTokenResponse tokenResponse
       , String nickName
   ){
-    Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
+    Map<String, Object> userAttributes = getUserAttributes(provider, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
 
-    if(providerName.equals(Provider.kakao.name())){
+    if(provider.equals(LoginProviderType.kakao)){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
       log.info("카카오 고객 정보를 받아오는데 성공하였습니다");
     } else {
       log.info("허용되지 않은 AUTH 접근입니다");
     }
 
-    String provider = oauth2UserInfo.getProvider();
-    String providerId = providerName + "_" + oauth2UserInfo.getProviderId();
+    String providerId = provider + "_" + oauth2UserInfo.getProviderId();
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
@@ -209,12 +207,12 @@ public class OauthService {
   /**
    * 소셜 서버에 접속하여 사용자 정보를 받아오는 메소드
    */
-  private Map<String, Object> getUserAttributes(String providerName, OauthTokenResponse tokenResponse){
+  private Map<String, Object> getUserAttributes(LoginProviderType provider, OauthTokenResponse tokenResponse){
     String uri = "";
-    if(providerName.equals(Provider.kakao.name())) {
+    if(provider.equals(LoginProviderType.kakao)) {
       uri = "https://kapi.kakao.com/v2/user/me";
     }
-    else if(providerName.equals(Provider.apple.name())){
+    else if(provider.equals(LoginProviderType.apple)){
       ;
     }
 
