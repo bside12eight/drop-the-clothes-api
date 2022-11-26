@@ -60,6 +60,8 @@ public class OauthService {
     // 3. 앱에 전달할 jwt 토큰 발행하기
     String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getMemberId()));
     String refreshToken = jwtTokenProvider.createRefreshToken();
+    log.debug(String.format("accessToken: %s", accessToken));
+    log.debug(String.format("refreshToken: %s", refreshToken));
 
     return LoginResponse.builder()
         .nickName(member.getNickName())
