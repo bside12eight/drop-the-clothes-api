@@ -17,6 +17,7 @@ import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.CategoryRepository;
 import com.droptheclothes.api.repository.CommentRepository;
 import com.droptheclothes.api.repository.VoteRepository;
+import com.droptheclothes.api.security.SecurityUtility;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +52,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void registerKeepOrDropArticle(KeepOrDropArticleRegisterRequest request, List<MultipartFile> images) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Category category = categoryRepository.findByName(request.getCategory())
                 .orElseThrow(() -> new IllegalArgumentException("카테고리가 올바르지 않습니다."));
@@ -94,9 +93,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void registerArticleComment(Long articleId, ArticleCommentRegisterRequest request) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
@@ -166,9 +163,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void voteKeepOrDrop(Long articleId, VoteType voteType) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));

@@ -120,7 +120,7 @@ public class OauthService {
     Member member = getUserProfile(providerName, tokenResponse);
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(member.getMemberId(), "Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(member.getMemberId(), false);
 
     if(memberEntity == null) {
       type = SignType.SIGNUP.getType();
@@ -165,7 +165,7 @@ public class OauthService {
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(providerId, "Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(providerId, false);
 
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
@@ -194,7 +194,7 @@ public class OauthService {
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(providerId, "Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(providerId, false);
 
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
@@ -261,7 +261,7 @@ public class OauthService {
 
   public Boolean updateNickName(String memberId, String nickName) {
     Boolean changeNickName = false;
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId, "Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId, false);
 
     if( !isExistNickName(nickName) ){
       memberEntity.changeNickName(nickName);
@@ -278,7 +278,7 @@ public class OauthService {
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId,"Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId,false);
 
     if(memberEntity != null) {
       isDelete = true;
@@ -293,7 +293,7 @@ public class OauthService {
   }
 
   public OauthResponse getProfileById(String memberId) {
-    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId, "Y");
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId, false);
 
     if(memberEntity == null){
       throw new IllegalArgumentException("존재하는 회원이 없습니다.");

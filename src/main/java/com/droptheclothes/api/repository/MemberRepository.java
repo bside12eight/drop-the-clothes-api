@@ -7,6 +7,6 @@ public interface MemberRepository extends JpaRepository<Member, String> {
   Member findByEmail(String email);
   Member findByMemberId(String memberId);
   Member findByNickName(String nickName);
-  Member findByMemberIdAndIsRemovedNot(String memberId, String isRemoved);
+  Member findByMemberIdAndIsRemoved(String memberId, boolean isRemoved);
 
 }

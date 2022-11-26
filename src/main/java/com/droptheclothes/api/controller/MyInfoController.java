@@ -10,6 +10,7 @@ import com.droptheclothes.api.model.dto.myinfo.BlockedUserResponse;
 import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.MyInfoService;
+import com.droptheclothes.api.security.LoginCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class MyInfoController {
 
     private final MyInfoService myInfoService;
 
+    @LoginCheck
     @Operation(summary = "내 정보 조회 API")
     @GetMapping("/api/my/info")
     public ApiResponse getMyInfo() {
@@ -34,6 +36,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "닉네임 변경 API")
     @PutMapping("/api/my/info/nickname")
     public ApiResponse updateNickname(@RequestParam(required = false) String nickname) {
@@ -44,6 +47,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "비밀번호 변경 API")
     @PutMapping("/api/my/info/password")
     public ApiResponse updatePassword(@RequestParam(required = false) String currentPassword,
@@ -60,6 +64,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "나의 의류수거함 제보 목록 조회 API")
     @GetMapping("/api/my/clothing-bin/report")
     public ApiResponse getMyClothingBinReports() {
@@ -67,6 +72,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "나의 버릴까 말까 글 목록 조회 API")
     @GetMapping("/api/my/keep-or-drop/article")
     public ApiResponse getMyKeepOrDropArticles() {
@@ -74,6 +80,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "유저 차단하기 API")
     @PostMapping("/api/my/block/user")
     public ApiResponse blockUser(String nickName) {
@@ -81,6 +88,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "차단한 유저 목록 조회 API")
     @GetMapping("/api/my/block/user")
     public ApiResponse getBlockedUsers() {
@@ -88,6 +96,7 @@ public class MyInfoController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "유저 차단해제 API")
     @DeleteMapping("/api/my/block/user")
     public ApiResponse unblockUser(String memberId) {

@@ -12,6 +12,7 @@ import com.droptheclothes.api.repository.ClothingBinReportRepository;
 import com.droptheclothes.api.repository.ClothingBinRepository;
 import com.droptheclothes.api.repository.ReportImageRepository;
 import com.droptheclothes.api.repository.ReportMemberRepository;
+import com.droptheclothes.api.security.SecurityUtility;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,14 +41,10 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportNewClothingBin(ClothingBinReportRequest request, List<MultipartFile> images) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-
         if (clothingBinService.isRegisteredClothingBin(request.getAddress())) {
             throw new IllegalArgumentException("해당 위치에는 이미 등록된 의류수거함이 존재합니다.");
         }
-
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
                                         .orElse(Report.of(request, ReportType.NEW));
@@ -69,9 +66,7 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportUpdatedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException("제보 대상 의류수거함 정보가 올바르지 않습니다."));
@@ -96,9 +91,7 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportDeletedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
-        // TODO: Member ID 처리
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException("제보 대상 의류수거함 정보가 올바르지 않습니다."));

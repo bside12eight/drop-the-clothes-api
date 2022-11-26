@@ -44,7 +44,7 @@ public class Member extends BaseTimeEntity {
 
   private String profileImage;
 
-  private String isRemoved;
+  private boolean isRemoved;
 
   //email,nickName, provide, providerId)
   public static Member createMember(
@@ -69,7 +69,7 @@ public class Member extends BaseTimeEntity {
   }
 
   public void removeMember() {
-    this.isRemoved = "Y";
+    this.isRemoved = true;
   }
 
   public void changePassword(String currentPassword, String password) {

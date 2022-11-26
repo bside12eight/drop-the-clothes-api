@@ -12,6 +12,7 @@ import com.droptheclothes.api.model.entity.pk.BlockedMemberId;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.BlockedMemberRepository;
 import com.droptheclothes.api.repository.ReportMemberRepository;
+import com.droptheclothes.api.security.SecurityUtility;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,35 +32,30 @@ public class MyInfoService {
     private final BlockedMemberRepository blockedMemberRepository;
 
     public MyInfoResponse getMyInfo() {
-        final String MEMBER_ID = "kakao_2467164020";
-        return MyInfoResponse.of(memberService.getMemberById(MEMBER_ID));
+        return MyInfoResponse.of(memberService.getMemberById(SecurityUtility.getMemberId()));
     }
 
     @Transactional
     public void updateNickname(String nickname) {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         member.changeNickName(nickname);
     }
 
     @Transactional
     public void updatePassword(String currentPassword, String password) {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         member.changePassword(currentPassword, password);
     }
 
     public List<ClothingBinReportResponse> getMyClothingBinReports() {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         List<ReportMember> myReports = reportMemberRepository.findByMemberOrderByCreatedAtDesc(member);
         return ClothingBinReportResponse.of(myReports);
     }
 
     public List<KeepOrDropArticleResponse> getMyKeepOrDropArticles() {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         List<Article> myArticles = articleRepository.findByMemberOrderByCreatedAtDesc(member);
         return KeepOrDropArticleResponse.of(myArticles);
@@ -67,8 +63,7 @@ public class MyInfoService {
 
     @Transactional
     public void blockUser(String nickName) {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         Member blockedMember = memberService.getMemberByNickName(nickName);
 
         BlockedMember blockedMemberEntity = new BlockedMember(member, blockedMember, LocalDateTime.now());
@@ -76,8 +71,7 @@ public class MyInfoService {
     }
 
     public List<BlockedUserResponse> getBlockedUsers() {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         List<BlockedMember> blockedMembers = blockedMemberRepository.findByMemberOrderByCreatedAtDesc(member);
         return BlockedUserResponse.of(blockedMembers);
@@ -85,8 +79,7 @@ public class MyInfoService {
 
     @Transactional
     public void unblockUser(String memberId) {
-        final String MEMBER_ID = "kakao_2467164020";
-        Member member = memberService.getMemberById(MEMBER_ID);
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         Member blockedMember = memberService.getMemberById(memberId);
 
         BlockedMember blockedMemberEntity = blockedMemberRepository.findById(new BlockedMemberId(member.getMemberId(), blockedMember.getMemberId()))
