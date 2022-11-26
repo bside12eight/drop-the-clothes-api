@@ -9,9 +9,11 @@ import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.myinfo.BlockedUserResponse;
 import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
-import com.droptheclothes.api.service.MyInfoService;
 import com.droptheclothes.api.security.LoginCheck;
+import com.droptheclothes.api.service.MyInfoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +32,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "내 정보 조회 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/info")
     public ApiResponse getMyInfo() {
         MyInfoResponse response = myInfoService.getMyInfo();
@@ -38,6 +41,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "닉네임 변경 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @PutMapping("/api/my/info/nickname")
     public ApiResponse updateNickname(@RequestParam(required = false) String nickname) {
         if (StringUtils.isBlank(nickname)) {
@@ -49,6 +53,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "비밀번호 변경 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @PutMapping("/api/my/info/password")
     public ApiResponse updatePassword(@RequestParam(required = false) String currentPassword,
                                       @RequestParam(required = false) String password) {
@@ -66,6 +71,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "나의 의류수거함 제보 목록 조회 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/clothing-bin/report")
     public ApiResponse getMyClothingBinReports() {
         List<ClothingBinReportResponse> response = myInfoService.getMyClothingBinReports();
@@ -74,6 +80,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "나의 버릴까 말까 글 목록 조회 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/keep-or-drop/article")
     public ApiResponse getMyKeepOrDropArticles() {
         List<KeepOrDropArticleResponse> response = myInfoService.getMyKeepOrDropArticles();
@@ -82,6 +89,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "유저 차단하기 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @PostMapping("/api/my/block/user")
     public ApiResponse blockUser(String nickName) {
         myInfoService.blockUser(nickName);
@@ -90,6 +98,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "차단한 유저 목록 조회 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/block/user")
     public ApiResponse getBlockedUsers() {
         List<BlockedUserResponse> response = myInfoService.getBlockedUsers();
@@ -98,6 +107,7 @@ public class MyInfoController {
 
     @LoginCheck
     @Operation(summary = "유저 차단해제 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @DeleteMapping("/api/my/block/user")
     public ApiResponse unblockUser(String memberId) {
         myInfoService.unblockUser(memberId);
