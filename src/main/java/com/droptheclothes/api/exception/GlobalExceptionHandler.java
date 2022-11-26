@@ -23,6 +23,13 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseBody
+    @ExceptionHandler({AuthenticationException.class})
+    public ApiResponse handleAuthenticationException(HttpServletRequest request, Exception exception) {
+        writeWarningLog(request);
+        return createResponse(ResultCode.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ResponseBody
     @ExceptionHandler({ObjectStorageException.class})
     public ApiResponse handleObjectStorageException(HttpServletRequest request, ObjectStorageException exception) {
         writeErrorLog(request, exception);

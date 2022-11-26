@@ -1,5 +1,6 @@
 package com.droptheclothes.api.jwt;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -50,6 +51,11 @@ public class JwtTokenProvider {
   }
 
   public String getPayload(String token){
+    if (StringUtils.isBlank(token)) {
+      return null;
+    }
+
+    token = token.replace("Bearer ", "");
     try {
       return Jwts.parserBuilder()
           .setSigningKey(secretKey)
@@ -60,7 +66,8 @@ public class JwtTokenProvider {
     } catch (ExpiredJwtException e) {
       return e.getClaims().getSubject();
     } catch (JwtException e){
-      throw new RuntimeException("유효하지 않은 토큰 입니다");
+      log.warn("유효하지 않은 토큰 입니다");
+      return null;
     }
   }
 
@@ -75,7 +82,4 @@ public class JwtTokenProvider {
       return false;
     }
   }
-
-
-
 }

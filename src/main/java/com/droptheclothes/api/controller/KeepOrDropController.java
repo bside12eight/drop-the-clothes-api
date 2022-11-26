@@ -12,6 +12,7 @@ import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequ
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.service.KeepOrDropService;
+import com.droptheclothes.api.security.LoginCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class KeepOrDropController {
 
     private final KeepOrDropService keepOrDropService;
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 글 등록 API")
     @PostMapping(value = "/api/keep-or-drop/article")
     public ApiResponse registerKeepOrDropArticle(@RequestPart KeepOrDropArticleRegisterRequest request,
@@ -44,6 +46,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 글 목록 조회 API")
     @GetMapping("/api/keep-or-drop")
     public ApiResponse getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
@@ -51,6 +54,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 글 상세 조회 API")
     @GetMapping("/api/keep-or-drop/{articleId}")
     public ApiResponse getKeepOrDropArticle(@PathVariable Long articleId) {
@@ -58,6 +62,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 댓글 등록 API")
     @PostMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse registerArticleComment(@PathVariable Long articleId,
@@ -67,6 +72,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 댓글 목록 조회 API")
     @GetMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse getArticleComments(@PathVariable Long articleId) {
@@ -74,6 +80,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
+    @LoginCheck
     @Operation(summary = "버릴까 말까 투표 API")
     @PostMapping("/api/keep-or-drop/{articleId}/vote")
     public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @RequestParam(required = false) VoteType voteType) {
@@ -84,6 +91,7 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "카테고리 조회 API")
     @GetMapping("/api/keep-or-drop/categories")
     public ApiResponse getItemCategories() {

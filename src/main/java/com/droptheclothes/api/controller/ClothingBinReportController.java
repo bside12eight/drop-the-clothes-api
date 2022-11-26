@@ -5,6 +5,7 @@ import com.droptheclothes.api.model.base.ApiResponseHeader;
 import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.service.ClothingBinReportService;
+import com.droptheclothes.api.security.LoginCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +27,7 @@ public class ClothingBinReportController {
 
     private final ClothingBinReportService clothingBinReportService;
 
+    @LoginCheck
     @Operation(summary = "신규 의류수거함 제보 API")
     @PostMapping(value = "/api/clothing-bins/report/new",
                  consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -38,6 +40,7 @@ public class ClothingBinReportController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "변경된 의류수거함 제보 API")
     @PutMapping("/api/clothing-bins/report/{clothingBinId}")
     public ApiResponse reportUpdatedClothingBin(@PathVariable Long clothingBinId,
@@ -50,6 +53,7 @@ public class ClothingBinReportController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
     @Operation(summary = "없어진 의류수거함 제보 API")
     @DeleteMapping("/api/clothing-bins/report/{clothingBinId}")
     public ApiResponse reportDeletedClothingBin(@PathVariable Long clothingBinId,
