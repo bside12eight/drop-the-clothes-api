@@ -51,7 +51,6 @@ public class KeepOrDropController {
     }
 
     @Operation(summary = "버릴까 말까 글 목록 조회 API")
-    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop")
     public ApiResponse getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
         List<KeepOrDropArticleResponse> response = keepOrDropService.getKeepOrDropArticles(request);
@@ -59,7 +58,6 @@ public class KeepOrDropController {
     }
 
     @Operation(summary = "버릴까 말까 글 상세 조회 API")
-    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/{articleId}")
     public ApiResponse getKeepOrDropArticle(@PathVariable Long articleId) {
         KeepOrDropArticleResponse response = keepOrDropService.getKeepOrDropArticle(articleId);
@@ -78,7 +76,6 @@ public class KeepOrDropController {
     }
 
     @Operation(summary = "버릴까 말까 댓글 목록 조회 API")
-    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse getArticleComments(@PathVariable Long articleId) {
         List<ArticleCommentResponse> response = keepOrDropService.getArticleComments(articleId);
@@ -98,7 +95,6 @@ public class KeepOrDropController {
     }
 
     @Operation(summary = "카테고리 조회 API")
-    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/categories")
     public ApiResponse getItemCategories() {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
