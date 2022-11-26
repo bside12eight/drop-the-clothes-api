@@ -35,6 +35,9 @@ public class OauthController {
   @PostMapping(value = "/api/oauth2/{provider}")
   @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
   public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
+    log.debug("loginWithToken2 executed");
+    log.debug(String.format("provider: %s", provider));
+    log.debug(String.format("accessToken: %s", loginRequest.getAccessToken()));
 
     String accessToken = loginRequest.getAccessToken();
     OauthResponse oauthResponse = null;
@@ -54,6 +57,9 @@ public class OauthController {
   @PostMapping(value = "/api/oauth2/{provider}/signup")
   @Operation(summary = "회원가입 api", description = "회원가입 api")
   public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
+    log.debug("join executed");
+    log.debug(String.format("provider: %s", provider));
+    log.debug(String.format("accessToken: %s", joinRequest.getAccessToken()));
 
     String accessToken = joinRequest.getAccessToken();
     String nickName = "";
