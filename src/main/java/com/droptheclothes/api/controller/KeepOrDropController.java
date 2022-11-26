@@ -50,7 +50,6 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
-    @LoginCheck
     @Operation(summary = "버릴까 말까 글 목록 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop")
@@ -59,7 +58,6 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
-    @LoginCheck
     @Operation(summary = "버릴까 말까 글 상세 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/{articleId}")
@@ -79,7 +77,6 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
-    @LoginCheck
     @Operation(summary = "버릴까 말까 댓글 목록 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/{articleId}/comments")
@@ -100,7 +97,6 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
-    @LoginCheck
     @Operation(summary = "카테고리 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/keep-or-drop/categories")
