@@ -5,6 +5,7 @@ import com.droptheclothes.api.model.enums.VoteType;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -36,6 +37,7 @@ public class Article {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private int keepCount;
