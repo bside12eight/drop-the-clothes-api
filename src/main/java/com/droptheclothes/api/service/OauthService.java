@@ -30,21 +30,10 @@ public class OauthService {
   private final MemberRepository memberRepository;
   private final JwtTokenProvider jwtTokenProvider;
 
-
-  /**
-   * 프론트에서 받은 AccessToken 정보를 DB에 저장하는 메소드
-   * @param requestDto
-   */
   public void saveAccessToken(OauthInfoRequest requestDto) {
     oauthRepository.save(requestDto.toEntity());
   }
 
-  /**
-   * 소셜 서버로부터 사용자 정보를 받아와서 로그인 처리를 진행함
-   * @param providerName
-   * @param
-   * @return
-   */
   public LoginResponse loginWithToken(String providerName, String Token){
 
     //1. 소셜 서버에 전달할 accessToken
@@ -64,6 +53,7 @@ public class OauthService {
     log.debug(String.format("refreshToken: %s", refreshToken));
 
     return LoginResponse.builder()
+        .memberId(member.getMemberId())
         .nickName(member.getNickName())
         .email(member.getEmail())
         .accessToken(accessToken)
@@ -130,7 +120,7 @@ public class OauthService {
     Member member = getUserProfile(providerName, tokenResponse);
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberId(member.getMemberId());
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(member.getMemberId(), "Y");
 
     if(memberEntity == null) {
       type = SignType.SIGNUP.getType();
@@ -140,6 +130,7 @@ public class OauthService {
     }
 
     return OauthResponse.builder()
+        .accessToken(Token)
         .nickName(member.getNickName())
         .email(member.getEmail())
         .type(type)
@@ -155,6 +146,7 @@ public class OauthService {
   ){
     Map<String, Object> userAttributes = getUserAttributes(providerName, tokenResponse);
     Oauth2UserInfo oauth2UserInfo = null;
+
 
     if(providerName.equals(Provider.kakao.name())){
       oauth2UserInfo = new KakaoUserInfo(userAttributes);
@@ -173,7 +165,7 @@ public class OauthService {
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberId(providerId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(providerId, "Y");
 
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
@@ -202,7 +194,7 @@ public class OauthService {
     String email = oauth2UserInfo.getEmail();
 
     //이미 존재하는 회원인지 검증하는 과정
-    Member memberEntity = memberRepository.findByMemberId(providerId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(providerId, "Y");
 
     if(memberEntity == null){
       memberEntity = Member.createMember(providerId, provider, nickName, email);
@@ -269,12 +261,15 @@ public class OauthService {
 
   public Boolean updateNickName(String memberId, String nickName) {
     Boolean changeNickName = false;
-    Member memberEntity = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId, "Y");
 
     if( !isExistNickName(nickName) ){
       memberEntity.changeNickName(nickName);
       memberRepository.save(memberEntity);
       changeNickName = true;
+    }
+    else{
+      throw new IllegalArgumentException("존재하는 회원이 없습니다.");
     }
 
     return changeNickName;
@@ -283,20 +278,25 @@ public class OauthService {
 
   public Boolean deleteProfile(String memberId) {
     Boolean isDelete = false;
-    Member memberEntity = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId,"Y");
 
     if(memberEntity != null) {
       isDelete = true;
-      memberRepository.delete(memberEntity);
+      memberEntity.removeMember();
+      memberRepository.save(memberEntity);
     }
+    else{
+      throw new IllegalArgumentException("존재하는 회원이 없습니다.");
+    }
+
     return isDelete;
   }
 
   public OauthResponse getProfileById(String memberId) {
-    Member memberEntity = memberRepository.findByMemberId(memberId);
+    Member memberEntity = memberRepository.findByMemberIdAndIsRemovedNot(memberId, "Y");
 
     if(memberEntity == null){
-      //throw new DropTheClothesApiException(ResponseCode.EXIST_MEMBER);
+      throw new IllegalArgumentException("존재하는 회원이 없습니다.");
     }
 
     return OauthResponse.builder()

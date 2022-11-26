@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class LoginResponse {
 
+  private String memberId;
   private String nickName;
   private String email;
   private String accessToken;
@@ -14,12 +15,14 @@ public class LoginResponse {
 
   @Builder
   public LoginResponse(
-        String nickName
+        String memberId
+      , String nickName
       , String email
       , String accessToken
       , String refreshToken
       , String type
   ){
+    this.memberId = memberId;
     this.nickName = nickName;
     this.email = email;
     this.accessToken = accessToken;
