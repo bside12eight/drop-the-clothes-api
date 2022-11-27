@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class OauthService implements LoginService {
+public class OauthService {
 
   private static final String BEARER_TYPE = "Bearer ";
   private final OauthRepository oauthRepository;
