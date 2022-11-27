@@ -13,7 +13,8 @@ import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.security.LoginCheck;
 import com.droptheclothes.api.service.KeepOrDropService;
-import com.droptheclothes.api.security.LoginCheck;
+import com.droptheclothes.api.utility.BusinessConstants;
+import com.droptheclothes.api.utility.MessageConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -33,8 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class KeepOrDropController {
 
-    private final int MAX_IMAGE_COUNT = 3;
-
     private final KeepOrDropService keepOrDropService;
 
     @LoginCheck
@@ -43,7 +42,6 @@ public class KeepOrDropController {
     @PostMapping(value = "/api/keep-or-drop/article")
     public ApiResponse registerKeepOrDropArticle(@RequestPart KeepOrDropArticleRegisterRequest request,
                                                  @RequestPart(required = false) List<MultipartFile> images) {
-        request.checkArgumentValidation();
         checkImageCountValidation(images);
 
         keepOrDropService.registerKeepOrDropArticle(request, images);
@@ -70,7 +68,6 @@ public class KeepOrDropController {
     @PostMapping("/api/keep-or-drop/{articleId}/comments")
     public ApiResponse registerArticleComment(@PathVariable Long articleId,
                                               @RequestBody ArticleCommentRegisterRequest request) {
-        request.checkArgumentValidation();
         keepOrDropService.registerArticleComment(articleId, request);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -88,7 +85,7 @@ public class KeepOrDropController {
     @PostMapping("/api/keep-or-drop/{articleId}/vote")
     public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @RequestParam(required = false) VoteType voteType) {
         if (Objects.isNull(voteType)) {
-            throw new IllegalArgumentException("투표 타입을 입력해주세요.");
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
         keepOrDropService.voteKeepOrDrop(articleId, voteType);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
@@ -102,8 +99,8 @@ public class KeepOrDropController {
     }
 
     private void checkImageCountValidation(List<MultipartFile> images) {
-        if (!Objects.isNull(images) && images.size() > MAX_IMAGE_COUNT) {
-            throw new IllegalArgumentException("이미지 파일은 최대 3개까지 업로드 가능합니다.");
+        if (!Objects.isNull(images) && images.size() > BusinessConstants.MAX_IMAGE_COUNT) {
+            throw new IllegalArgumentException(String.format(MessageConstants.MAX_IMAGE_COUNT_EXCEED_MESSAGE, BusinessConstants.MAX_IMAGE_COUNT));
         }
     }
 }

@@ -18,6 +18,8 @@ import com.droptheclothes.api.repository.CategoryRepository;
 import com.droptheclothes.api.repository.CommentRepository;
 import com.droptheclothes.api.repository.VoteRepository;
 import com.droptheclothes.api.security.SecurityUtility;
+import com.droptheclothes.api.utility.BusinessConstants;
+import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,23 +57,21 @@ public class KeepOrDropService {
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Category category = categoryRepository.findByName(request.getCategory())
-                .orElseThrow(() -> new IllegalArgumentException("카테고리가 올바르지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE));
 
         Article article = Article.of(request, member, category);
         articleRepository.save(article);
 
         if (!Objects.isNull(images)) {
-            List<String> uploadPathAndFileName = storeArticleImages(article, images);
-            uploadPathAndFileName.stream().forEach(filepath -> {
-                articleImageRepository.save(ArticleImage.of(article, filepath));
-            });
+            storeArticleImages(article, images).stream()
+                    .forEach(filepath -> articleImageRepository.save(ArticleImage.of(article, filepath)));
         }
     }
 
     public List<KeepOrDropArticleResponse> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
         if (!StringUtils.isBlank(request.getCategory())) {
             categoryRepository.findByName(request.getCategory())
-                    .orElseThrow(() -> new IllegalArgumentException("카테고리 설정이 잘못되었습니다."));
+                    .orElseThrow(() -> new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE));
         }
 
         List<Article> articles = articleRepository.getKeepOrDropArticles(request);
@@ -86,8 +86,7 @@ public class KeepOrDropService {
 
     public KeepOrDropArticleResponse getKeepOrDropArticle(Long articleId) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
-
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
         return KeepOrDropArticleResponse.of(article);
     }
 
@@ -96,7 +95,7 @@ public class KeepOrDropService {
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
 
         Comment parentComment = null;
         int listOrder;
@@ -122,7 +121,7 @@ public class KeepOrDropService {
 
     public List<ArticleCommentResponse> getArticleComments(Long articleId) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
 
         ArrayList<Comment> comments = new ArrayList<>(article.getComments());
         comments.sort((o1, o2) -> {
@@ -166,7 +165,7 @@ public class KeepOrDropService {
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
 
         Optional<Vote> optionalVote = voteRepository.findByMemberAndArticle(member, article);
         if (optionalVote.isEmpty()) {
@@ -198,20 +197,13 @@ public class KeepOrDropService {
     }
 
     private List<String> storeArticleImages(Article article, List<MultipartFile> images) {
-        final int MAX_IMAGE_FILE_COUNT = 3;
-        if (images.size() > MAX_IMAGE_FILE_COUNT) {
-            throw new IllegalArgumentException("이미지는 최대 3장까지 업로드 할 수 있습니다.");
+        if (images.size() > BusinessConstants.MAX_IMAGE_COUNT) {
+            throw new IllegalArgumentException(String.format(MessageConstants.MAX_IMAGE_COUNT_EXCEED_MESSAGE, BusinessConstants.MAX_IMAGE_COUNT));
         }
+        final String DIRECTORY = BusinessConstants.ARTICLE_IMAGE_DIRECTORY + article.getArticleId().toString();
 
-        final String DIRECTORY = "article/" + article.getArticleId().toString();
-
-        List<String> uploadPaths = new ArrayList<>();
-
-        for (MultipartFile image : images) {
-            if (Objects.isNull(image)) continue;
-            String uploadPath = objectStorageService.uploadFileToObjectStorage(DIRECTORY, image);
-            uploadPaths.add(uploadPath);
-        }
-        return uploadPaths;
+        return images.stream()
+                .map(image -> objectStorageService.uploadFileToObjectStorage(DIRECTORY, image))
+                .collect(Collectors.toList());
     }
 }
