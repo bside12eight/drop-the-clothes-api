@@ -12,21 +12,24 @@ public class ClothingBinRepositoryImpl implements ClothingBinRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<ClothingBinResponse> getClothingBinsWithin1km(Double latitude, Double longitude, Integer distance) {
+    public List<ClothingBinResponse> getClothingBinsWithinRadius(Double latitude, Double longitude, Integer radius) {
         return entityManager.createNativeQuery("select clothingBinId,\n" +
                                         "       name,\n" +
                                         "       address,\n" +
                                         "       detailedAddress,\n" +
                                         "       latitude,\n" +
                                         "       longitude,\n" +
+                                        "       image,\n" +
                                         "       ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(longitude, latitude)) as distanceInMeters,\n" +
+                                        "       createdAt,\n" +
                                         "       updatedAt\n" +
                                         "  from ClothingBin\n" +
-                                        " where ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(longitude, latitude)) <= :distance" +
-                                        " order by distanceInMeters asc", "ClothingBinResponse")
+                                        " where ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(longitude, latitude)) <= :radius" +
+                                        "   and active is true" +
+                                        " order by distanceInMeters asc", "ClothingBinsResponse")
                      .setParameter("latitude", latitude)
                      .setParameter("longitude", longitude)
-                     .setParameter("distance", distance)
+                     .setParameter("radius", radius)
                      .getResultList();
     }
 }

@@ -3,6 +3,7 @@ package com.droptheclothes.api.service;
 import com.droptheclothes.api.model.dto.clothingbin.ClothingBinResponse;
 import com.droptheclothes.api.model.entity.ClothingBin;
 import com.droptheclothes.api.repository.ClothingBinRepository;
+import com.droptheclothes.api.utility.Constants;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,8 @@ public class ClothingBinService {
 
     private final ClothingBinRepository clothingBinRepository;
 
-    public List<ClothingBinResponse> getClothingBinsWithin1km(Double latitude, Double longitude, Integer distance) {
-        return clothingBinRepository.getClothingBinsWithin1km(latitude, longitude, distance);
+    public List<ClothingBinResponse> getClothingBinsWithinRadius(Double latitude, Double longitude) {
+        return clothingBinRepository.getClothingBinsWithinRadius(latitude, longitude, Constants.CLOTHING_BIN_SEARCH_RADIUS);
     }
 
     public ClothingBinResponse getClothingBin(Long clothingBinId) {
