@@ -1,6 +1,7 @@
 package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.base.BaseTimeEntity;
+import com.droptheclothes.api.model.enums.Provider;
 import com.droptheclothes.api.model.enums.Role;
 import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
@@ -77,5 +78,9 @@ public class Member extends BaseTimeEntity {
 
     public boolean isRemoved() {
         return isRemoved;
+    }
+
+    public boolean isSocialLoginMember() {
+        return !provider.equals(Provider.email.toString());
     }
 }

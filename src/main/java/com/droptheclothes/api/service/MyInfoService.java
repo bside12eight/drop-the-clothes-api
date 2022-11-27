@@ -56,6 +56,9 @@ public class MyInfoService {
     @Transactional
     public void updatePassword(String currentPassword, String password) {
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        if (member.isSocialLoginMember()) {
+            throw new IllegalArgumentException(MessageConstants.NO_NEED_PASSWORD_MESSAGE);
+        }
         member.changePassword(currentPassword, password);
     }
 
