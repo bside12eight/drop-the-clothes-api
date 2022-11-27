@@ -20,7 +20,7 @@ public class ObjectStorageService {
 
     private static final String END_POINT = "https://kr.object.ncloudstorage.com";
 
-    private static final String HOSTING_END_POINT = "http://clothing-bin.s3-website.kr.object.ncloudstorage.com/";
+    private static final String HOSTING_END_POINT = "http://drop-the-clothes.s3-website.kr.object.ncloudstorage.com/";
 
     private static final String REGION_NAME = "kr-standard";
 
@@ -28,10 +28,10 @@ public class ObjectStorageService {
 
     private static final String SECRET_KET = "lRtInG8nJFkIRO3mnNMRi0GHaZFkOZ0D3pNzNoiQ";
 
-    private static final String BUCKET_NAME = "clothing-bin";
+    private static final String BUCKET_NAME = "drop-the-clothes";
 
     public String uploadFileToObjectStorage(String directory, MultipartFile file) {
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+        final AmazonS3 naverObjectStorageClient = AmazonS3ClientBuilder.standard()
                                                  .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(END_POINT, REGION_NAME))
                                                  .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ACCESS_KEY, SECRET_KET)))
                                                  .build();
@@ -40,7 +40,7 @@ public class ObjectStorageService {
         String uploadFileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssSSS")) + "." + FilenameUtils.getExtension(file.getOriginalFilename());
         String uploadPathAndFileName = directory + "/" + uploadFileName;
         try {
-            s3.putObject(BUCKET_NAME, uploadPathAndFileName, file.getInputStream(), objectMetadata);
+            naverObjectStorageClient.putObject(BUCKET_NAME, uploadPathAndFileName, file.getInputStream(), objectMetadata);
         } catch (Exception e) {
             throw new ObjectStorageException(e.getMessage());
         }
