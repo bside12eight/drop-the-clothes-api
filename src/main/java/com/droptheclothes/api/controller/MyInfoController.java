@@ -11,7 +11,7 @@ import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.security.LoginCheck;
 import com.droptheclothes.api.service.MyInfoService;
-import com.droptheclothes.api.security.LoginCheck;
+import com.droptheclothes.api.utility.MessageConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -35,9 +35,8 @@ public class MyInfoController {
     @Operation(summary = "내 정보 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/info")
-    public ApiResponse getMyInfo() {
-        MyInfoResponse response = myInfoService.getMyInfo();
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
+    public ApiResponse<MyInfoResponse> getMyInfo() {
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(myInfoService.getMyInfo()));
     }
 
     @LoginCheck
@@ -46,7 +45,7 @@ public class MyInfoController {
     @PutMapping("/api/my/info/nickname")
     public ApiResponse updateNickname(@RequestParam(required = false) String nickname) {
         if (StringUtils.isBlank(nickname)) {
-            throw new IllegalArgumentException("닉네임을 입력해주세요.");
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
         myInfoService.updateNickname(nickname);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
@@ -58,14 +57,9 @@ public class MyInfoController {
     @PutMapping("/api/my/info/password")
     public ApiResponse updatePassword(@RequestParam(required = false) String currentPassword,
                                       @RequestParam(required = false) String password) {
-        if (StringUtils.isBlank(currentPassword)) {
-            throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+        if (StringUtils.isBlank(currentPassword) || StringUtils.isBlank(password)) {
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
-
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("변경할 비밀번호를 입력해주세요.");
-        }
-
         myInfoService.updatePassword(currentPassword, password);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
@@ -74,7 +68,7 @@ public class MyInfoController {
     @Operation(summary = "나의 의류수거함 제보 목록 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/clothing-bin/report")
-    public ApiResponse getMyClothingBinReports() {
+    public ApiResponse<List<ClothingBinReportResponse>> getMyClothingBinReports() {
         List<ClothingBinReportResponse> response = myInfoService.getMyClothingBinReports();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
@@ -83,7 +77,7 @@ public class MyInfoController {
     @Operation(summary = "나의 버릴까 말까 글 목록 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/keep-or-drop/article")
-    public ApiResponse getMyKeepOrDropArticles() {
+    public ApiResponse<List<KeepOrDropArticleResponse>> getMyKeepOrDropArticles() {
         List<KeepOrDropArticleResponse> response = myInfoService.getMyKeepOrDropArticles();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
@@ -101,7 +95,7 @@ public class MyInfoController {
     @Operation(summary = "차단한 유저 목록 조회 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @GetMapping("/api/my/block/user")
-    public ApiResponse getBlockedUsers() {
+    public ApiResponse<List<BlockedUserResponse>> getBlockedUsers() {
         List<BlockedUserResponse> response = myInfoService.getBlockedUsers();
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }

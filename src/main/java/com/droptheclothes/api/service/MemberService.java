@@ -2,7 +2,7 @@ package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.repository.MemberRepository;
-import java.util.Objects;
+import com.droptheclothes.api.utility.MessageConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +14,11 @@ public class MemberService {
 
     public Member getMemberById(String memberId) {
         return memberRepository.findById(memberId)
-                               .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                               .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
     }
 
     public Member getMemberByNickName(String nickName) {
-        Member member = memberRepository.findByNickName(nickName);
-        if (Objects.isNull(member)) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
-        }
-        return member;
+        return memberRepository.findByNickName(nickName)
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
     }
 }
