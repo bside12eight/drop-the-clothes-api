@@ -1,8 +1,8 @@
 package com.droptheclothes.api.model.entity;
 
-import com.droptheclothes.api.exception.DropTheClothesApiException;
 import com.droptheclothes.api.model.base.BaseTimeEntity;
 import com.droptheclothes.api.model.enums.Role;
+import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,57 +26,56 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 public class Member extends BaseTimeEntity {
 
-  @Id
-  private String memberId;
+    @Id
+    private String memberId;
 
-  private String provider; // joinType
-  private String nickName;
+    private String provider; // joinType
 
-  @Column(unique = true)
-  private String email; // UQ
+    private String nickName;
 
-  private String password;
-  private LocalDateTime loggedInAt;
-  private LocalDateTime deletedAt;
+    @Column(unique = true)
+    private String email; // UQ
 
-  @Enumerated(EnumType.STRING)
-  private Role role;
+    private String password;
 
-  private String profileImage;
+    private LocalDateTime loggedInAt;
 
-  private boolean isRemoved;
+    private LocalDateTime deletedAt;
 
-  //email,nickName, provide, providerId)
-  public static Member createMember(
-      String providerId
-      , String provider
-      , String nickName
-      , String email
-  ){
-    Member member = Member.builder()
-        .memberId(providerId)
-        .provider(provider)
-        .role(Role.USER)
-        .email(email)
-        .nickName(nickName)
-        .build();
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    return member;
-  }
+    private String profileImage;
 
-  public void changeNickName(String nickName) {
-    this.nickName = nickName;
-  }
+    private boolean isRemoved;
 
-  public void removeMember() {
-    this.isRemoved = true;
-  }
-
-  public void changePassword(String currentPassword, String password) {
-    if (!currentPassword.equals(this.password)) {
-      throw new DropTheClothesApiException("이전 비밀번호가 일치하지 않습니다.");
+    //email,nickName, provide, providerId)
+    public static Member createMember(String providerId, String provider, String nickName, String email) {
+        return Member.builder()
+                .memberId(providerId)
+                .provider(provider)
+                .role(Role.USER)
+                .email(email)
+                .nickName(nickName)
+                .build();
     }
-    this.password = password;
-  }
 
+    public void changeNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void removeMember() {
+        this.isRemoved = true;
+    }
+
+    public void changePassword(String currentPassword, String password) {
+        if (!currentPassword.equals(this.password)) {
+            throw new IllegalArgumentException(MessageConstants.WRONG_PASSWORD_MESSAGE);
+        }
+        this.password = password;
+    }
+
+    public boolean isRemoved() {
+        return isRemoved;
+    }
 }
