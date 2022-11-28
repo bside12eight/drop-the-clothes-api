@@ -1,6 +1,7 @@
 package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
+import com.droptheclothes.api.model.dto.geocoding.Coordinate;
 import com.droptheclothes.api.model.enums.ReportStatus;
 import com.droptheclothes.api.model.enums.ReportType;
 import java.time.LocalDateTime;
@@ -58,13 +59,13 @@ public class Report {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "report")
     private Set<ReportMember> reportMembers = new HashSet<>();
 
-    public static Report of(ClothingBinReportRequest request, ReportType reportType) {
+    public static Report of(ClothingBinReportRequest request, Coordinate coordinate, ReportType reportType) {
         return Report.builder()
                      .type(reportType)
                      .address(request.getAddress())
                      .detailedAddress(request.getDetailedAddress())
-                     .latitude(request.getLatitude())
-                     .longitude(request.getLongitude())
+                     .latitude(Double.parseDouble(coordinate.getNewLat()))
+                     .longitude(Double.parseDouble(coordinate.getNewLon()))
                      .comment(request.getComment())
                      .reportCount(0)
                      .status(ReportStatus.PENDING)
@@ -73,14 +74,14 @@ public class Report {
                      .build();
     }
 
-    public static Report of(ClothingBin clothingBin, ClothingBinReportRequest request, ReportType reportType) {
+    public static Report of(ClothingBin clothingBin, ClothingBinReportRequest request, Coordinate coordinate, ReportType reportType) {
         return Report.builder()
                 .type(reportType)
                 .clothingBin(clothingBin)
                 .address(request.getAddress())
                 .detailedAddress(request.getDetailedAddress())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
+                .latitude(Double.parseDouble(coordinate.getNewLat()))
+                .longitude(Double.parseDouble(coordinate.getNewLon()))
                 .comment(request.getComment())
                 .reportCount(0)
                 .status(ReportStatus.PENDING)
