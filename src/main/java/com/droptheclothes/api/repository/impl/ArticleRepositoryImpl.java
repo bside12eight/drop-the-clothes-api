@@ -21,16 +21,19 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     @Override
     public List<Article> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
-        // TODO: 조회 조건 고도화 필요함
+        final int PAGE_SIZE = 30;
+
         QArticle article = QArticle.article;
 
         OrderSpecifier<?> orderSpecifier = null;
         if (request.getOrderType().equals(OrderType.LATEST)) {
             orderSpecifier = article.createdAt.desc();
+        } else if (request.getOrderType().equals(OrderType.POPULARITY)) {
+            orderSpecifier = article.popularity.desc();
         }
 
         Predicate where = null;
-        if (!StringUtils.isBlank(request.getCategory())) {
+        if (!StringUtils.isBlank(request.getCategory()) && !request.getCategory().equals("전체")) {
             where = ExpressionUtils.and(where, article.category.name.eq(request.getCategory()));
         }
 
@@ -38,6 +41,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .select(article)
                 .from(article)
                 .where(where)
+                .offset(request.getOffset(PAGE_SIZE))
+                .limit(PAGE_SIZE)
                 .orderBy(orderSpecifier)
                 .fetch();
     }
