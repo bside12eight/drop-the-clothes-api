@@ -1,6 +1,7 @@
 package com.droptheclothes.api.model.dto.keepordrop;
 
 import com.droptheclothes.api.model.enums.OrderType;
+import com.droptheclothes.api.utility.MessageConstants;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,14 +15,16 @@ public class KeepOrDropArticleRetrieveRequest {
 
     private String category;
 
-    public boolean checkArgumentValidation() {
-        if (Objects.isNull(orderType)) {
-            throw new IllegalArgumentException("정렬 방법을 정해주세요.");
-        }
+    private Integer page;
 
-        if (StringUtils.isBlank(category)) {
-            throw new IllegalArgumentException("카테고리를 입력해주세요.");
+    public boolean checkArgumentValidation() {
+        if (Objects.isNull(orderType) || StringUtils.isBlank(category) || Objects.isNull(page)) {
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
         return true;
+    }
+
+    public int getOffset(int pageSize) {
+        return (this.page - 1) * pageSize;
     }
 }

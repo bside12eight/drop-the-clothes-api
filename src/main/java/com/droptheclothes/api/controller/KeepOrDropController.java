@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,14 +51,15 @@ public class KeepOrDropController {
 
     @Operation(summary = "버릴까 말까 글 목록 조회 API")
     @GetMapping("/api/keep-or-drop")
-    public ApiResponse getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
+    public ApiResponse<List<KeepOrDropArticleResponse>> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
+        request.checkArgumentValidation();
         List<KeepOrDropArticleResponse> response = keepOrDropService.getKeepOrDropArticles(request);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
 
     @Operation(summary = "버릴까 말까 글 상세 조회 API")
     @GetMapping("/api/keep-or-drop/{articleId}")
-    public ApiResponse getKeepOrDropArticle(@PathVariable Long articleId) {
+    public ApiResponse<KeepOrDropArticleResponse> getKeepOrDropArticle(@PathVariable Long articleId) {
         KeepOrDropArticleResponse response = keepOrDropService.getKeepOrDropArticle(articleId);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(response));
     }
@@ -72,9 +74,18 @@ public class KeepOrDropController {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
+    @LoginCheck
+    @Operation(summary = "버릴까 말까 댓글 삭제 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
+    @DeleteMapping("/api/keep-or-drop/{articleId}/comments/{commentId}")
+    public ApiResponse deleteArticleComment(@PathVariable Long articleId, @PathVariable Long commentId) {
+        keepOrDropService.deleteArticleComment(articleId, commentId);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
+    }
+
     @Operation(summary = "버릴까 말까 댓글 목록 조회 API")
     @GetMapping("/api/keep-or-drop/{articleId}/comments")
-    public ApiResponse getArticleComments(@PathVariable Long articleId) {
+    public ApiResponse<List<ArticleCommentResponse>> getArticleComments(@PathVariable Long articleId) {
         List<ArticleCommentResponse> response = keepOrDropService.getArticleComments(articleId);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new CollectionObject<>(response));
     }
@@ -93,7 +104,7 @@ public class KeepOrDropController {
 
     @Operation(summary = "카테고리 조회 API")
     @GetMapping("/api/keep-or-drop/categories")
-    public ApiResponse getItemCategories() {
+    public ApiResponse<List<String>> getItemCategories() {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
                 new CollectionObject<>(keepOrDropService.getItemCategories()));
     }

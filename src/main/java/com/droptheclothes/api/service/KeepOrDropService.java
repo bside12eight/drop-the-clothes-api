@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,7 +68,7 @@ public class KeepOrDropService {
     }
 
     public List<KeepOrDropArticleResponse> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
-        if (!StringUtils.isBlank(request.getCategory())) {
+        if (!request.getCategory().equals("전체")) {
             categoryRepository.findByName(request.getCategory())
                     .orElseThrow(() -> new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE));
         }
@@ -96,6 +95,7 @@ public class KeepOrDropService {
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
+        article.addComment();
 
         Comment parentComment = null;
         int listOrder;
@@ -117,6 +117,17 @@ public class KeepOrDropService {
                 .build();
 
         commentRepository.save(commentEntity);
+    }
+
+    @Transactional
+    public void deleteArticleComment(Long articleId, Long commentId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
+        article.removeComment();
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
+        comment.delete();
     }
 
     public List<ArticleCommentResponse> getArticleComments(Long articleId) {
