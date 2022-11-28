@@ -1,6 +1,7 @@
 package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportRequest;
+import com.droptheclothes.api.model.dto.geocoding.Coordinate;
 import com.droptheclothes.api.model.entity.ClothingBin;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.model.entity.Report;
@@ -29,6 +30,8 @@ public class ClothingBinReportService {
 
     private final MemberService memberService;
 
+    private final GeocodingService geocodingService;
+
     private final ObjectStorageService objectStorageService;
 
     private final ClothingBinRepository clothingBinRepository;
@@ -41,13 +44,15 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportNewClothingBin(ClothingBinReportRequest request, List<MultipartFile> images) {
+        Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
+
         if (isAlreadyRegisteredAddress(request.getAddress())) {
             throw new IllegalArgumentException("해당 위치에는 이미 등록된 의류수거함이 존재합니다.");
         }
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
-                                        .orElse(Report.of(request, ReportType.NEW));
+                                        .orElse(Report.of(request, coordinate, ReportType.NEW));
 
         if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
             throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
@@ -64,13 +69,15 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportUpdatedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
+        Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
+
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.MATCHED_CLOTHING_BIN_NOT_FOUND_MESSAGE));
 
         Report report = clothingBinReportRepository.findByClothingBinAndType(clothingBin, ReportType.UPDATE)
-                .orElse(Report.of(clothingBin, request, ReportType.UPDATE));
+                .orElse(Report.of(clothingBin, request, coordinate, ReportType.UPDATE));
 
         if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
             throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
@@ -87,13 +94,15 @@ public class ClothingBinReportService {
 
     @Transactional
     public void reportDeletedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
+        Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
+
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.MATCHED_CLOTHING_BIN_NOT_FOUND_MESSAGE));
 
         Report report = clothingBinReportRepository.findByClothingBinAndType(clothingBin, ReportType.DELETE)
-                .orElse(Report.of(clothingBin, request, ReportType.DELETE));
+                .orElse(Report.of(clothingBin, request, coordinate, ReportType.DELETE));
 
         if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
             throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
