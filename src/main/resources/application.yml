@@ -20,7 +20,7 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
@@ -46,3 +46,8 @@ springdoc:
 logging:
   file:
     path: /home1/jenkins/logs/droptheclothes
+sk-open-api:
+  app-key: l7xx52649a961af54eea84a7532d36ad0006
+  geocoding:
+    host: https://apis.openapi.sk.com
+    endpoint: /tmap/geo/fullAddrGeo

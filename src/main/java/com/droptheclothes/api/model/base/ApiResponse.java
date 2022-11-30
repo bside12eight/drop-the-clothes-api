@@ -3,11 +3,11 @@ package com.droptheclothes.api.model.base;
 import lombok.Getter;
 
 @Getter
-public class ApiResponse {
+public class ApiResponse<T> {
 
     private ApiResponseHeader header;
 
-    private ApiResponseBody data;
+    private ApiResponseBody<T> data;
 
     public ApiResponse(ApiResponseHeader header, ApiResponseBody data) {
         this.header = header;

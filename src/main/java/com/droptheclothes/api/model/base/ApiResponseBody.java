@@ -1,5 +1,5 @@
 package com.droptheclothes.api.model.base;
 
-public interface ApiResponseBody {
+public interface ApiResponseBody<T> {
 
 }
