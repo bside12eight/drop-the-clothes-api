@@ -15,6 +15,7 @@ import org.springframework.core.env.Environment;
 @OpenAPIDefinition(info = @Info(title="DroptheClothes API") )
 public class SwaggerConfig {
 
+//    aaa
     private final String SWAGGER_UI_SERVER_PROPERTY_KEY = "springdoc.swagger-ui.server";
 
     @Autowired
