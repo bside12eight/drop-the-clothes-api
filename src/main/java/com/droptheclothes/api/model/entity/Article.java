@@ -109,6 +109,10 @@ public class Article {
         updatePopularity();
     }
 
+    public void addCharge() {
+        this.chargedCount++;
+    }
+
     private void updatePopularity() {
         this.popularity = ((this.keepCount + this.dropCount) * 0.3) + (this.commentCount * 0.7);
     }
