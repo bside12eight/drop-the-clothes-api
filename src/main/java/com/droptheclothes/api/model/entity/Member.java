@@ -1,7 +1,7 @@
 package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.base.BaseTimeEntity;
-import com.droptheclothes.api.model.enums.Provider;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
 import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
@@ -50,6 +50,23 @@ public class Member extends BaseTimeEntity {
 
     private boolean isRemoved;
 
+  //email,nickName, provide, providerId)
+  public static Member createMember(
+      String providerId
+      , LoginProviderType provider
+      , String nickName
+      , String email
+  ){
+    Member member = Member.builder()
+        .memberId(providerId)
+        .provider(provider.toString())
+        .role(Role.USER)
+        .email(email)
+        .nickName(nickName)
+        .build();
+
+    return member;
+  }
     //email,nickName, provide, providerId)
     public static Member createMember(String providerId, String provider, String nickName, String email) {
         return Member.builder()
@@ -81,6 +98,6 @@ public class Member extends BaseTimeEntity {
     }
 
     public boolean isSocialLoginMember() {
-        return !provider.equals(Provider.email.toString());
+        return !provider.equals(LoginProviderType.email.toString());
     }
 }

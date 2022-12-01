@@ -1,9 +1,12 @@
 package com.droptheclothes.api.model.dto.auth;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
+@AllArgsConstructor
 public class LoginResponse {
 
   private String memberId;
@@ -12,22 +15,4 @@ public class LoginResponse {
   private String accessToken;
   private String refreshToken;
   private String type;
-
-  @Builder
-  public LoginResponse(
-        String memberId
-      , String nickName
-      , String email
-      , String accessToken
-      , String refreshToken
-      , String type
-  ){
-    this.memberId = memberId;
-    this.nickName = nickName;
-    this.email = email;
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-    this.type = type;
-  }
-
 }

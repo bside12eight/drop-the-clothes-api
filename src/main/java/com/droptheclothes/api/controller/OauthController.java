@@ -9,8 +9,10 @@ import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.OauthResponse;
 import com.droptheclothes.api.model.dto.auth.TokenResponse;
 import com.droptheclothes.api.model.dto.auth.UpdateRequest;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.SignType;
+import com.droptheclothes.api.service.AppleAuthenticationService;
 import com.droptheclothes.api.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -30,101 +32,112 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OauthController {
 
-  private final OauthService oauthService;
+    private final OauthService oauthService;
 
-  @PostMapping(value = "/api/oauth2/{provider}")
-  @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
-  public ApiResponse loginWithToken2(@PathVariable String provider, @RequestBody LoginRequest loginRequest) {
-    log.debug("loginWithToken2 executed");
-    log.debug(String.format("provider: %s", provider));
-    log.debug(String.format("accessToken: %s", loginRequest.getAccessToken()));
+    private final AppleAuthenticationService appleAuthenticationService;
 
-    String accessToken = loginRequest.getAccessToken();
-    OauthResponse oauthResponse = null;
+    @PostMapping(value = "/api/oauth2/{provider}")
+    @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
+    public ApiResponse loginWithToken2(@PathVariable LoginProviderType provider,
+                                       @RequestBody LoginRequest loginRequest) {
+        log.debug("loginWithToken2 executed");
+        log.debug(String.format("provider: %s", provider));
+        log.debug(String.format("accessToken: %s", loginRequest.getAccessToken()));
+        log.debug(String.format("identityToken: %s", loginRequest.getIdentityToken()));
 
-    oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
+        if (provider.equals(LoginProviderType.apple)) {
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(appleAuthenticationService.login(loginRequest)));
+        }
 
-    if(oauthResponse.getType().trim().equals(SignType.SIGNIN.getType()) ){
-      return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-          new SingleObject<>(oauthService.loginWithToken(provider, accessToken)));
+        String accessToken = loginRequest.getAccessToken();
+        OauthResponse oauthResponse = oauthService.checkExistMemberWithToken(provider, accessToken);
+
+        if (oauthResponse.getType().trim().equals(SignType.SIGNIN.getType())) {
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(oauthService.loginWithToken(provider, accessToken)));
+        } else {
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(oauthResponse));
+        }
     }
-    else{
-      return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-          new SingleObject<>(oauthResponse));
+
+    @PostMapping(value = "/api/oauth2/{provider}/signup")
+    @Operation(summary = "회원가입 api", description = "회원가입 api")
+    public ApiResponse join(@PathVariable LoginProviderType provider,
+                            @RequestBody JoinRequest joinRequest) {
+        log.debug("join executed");
+        log.debug(String.format("provider: %s", provider));
+        log.debug(String.format("accessToken: %s", joinRequest.getAccessToken()));
+        log.debug(String.format("identityToken: %s", joinRequest.getIdentityToken()));
+
+        if (provider.equals(LoginProviderType.apple)) {
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(appleAuthenticationService.signUp(provider, joinRequest)));
+        }
+
+        String accessToken = joinRequest.getAccessToken();
+        String nickName = "";
+        LoginResponse loginResponse = null;
+
+        // 닉네임 변경해서 회원가입시
+        if (
+                (joinRequest.getNickName().isEmpty())
+                        || (joinRequest.getNickName().equals(""))
+                        || (joinRequest.getNickName() == null)
+        ) {
+            ;
+        } else {
+            nickName = joinRequest.getNickName();
+
+        }
+        loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
+
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(loginResponse));
     }
-  }
 
-  @PostMapping(value = "/api/oauth2/{provider}/signup")
-  @Operation(summary = "회원가입 api", description = "회원가입 api")
-  public ApiResponse join(@PathVariable String provider, @RequestBody JoinRequest joinRequest) {
-    log.debug("join executed");
-    log.debug(String.format("provider: %s", provider));
-    log.debug(String.format("accessToken: %s", joinRequest.getAccessToken()));
-
-    String accessToken = joinRequest.getAccessToken();
-    String nickName = "";
-    LoginResponse loginResponse = null;
-
-    // 닉네임 변경해서 회원가입시
-    if(
-        ( joinRequest.getNickName().isEmpty() )
-            || (joinRequest.getNickName().equals("") )
-            || (joinRequest.getNickName() == null)
-    ){
-      ;
+    @GetMapping("/api/oauth2/{nickName}")
+    @Operation(summary = "닉네임 중복 판별 api", description = "닉네임 중복 판별 api")
+    public ApiResponse checkNickName(@PathVariable String nickName) {
+        Boolean checkNickName = oauthService.isExistNickName(nickName);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(checkNickName));
     }
-    else{
-      nickName = joinRequest.getNickName();
 
+    @GetMapping("/api/oauth2/profile")
+    @Operation(summary = "로그인 유저 정보 판별 api", description = "로그인 유저 정보 판별 api")
+    public ApiResponse getProfileById(@RequestParam String memberId) {
+        OauthResponse oauthResponse = oauthService.getProfileById(memberId);
+
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(oauthResponse));
     }
-    loginResponse = oauthService.joinWithToken(provider, accessToken, nickName);
 
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(loginResponse));
-  }
+    @PutMapping("/api/oauth2/{memberId}")
+    @Operation(summary = "닉네임 수정 api", description = "닉네임 수정 api")
+    public ApiResponse checkNickName(@PathVariable String memberId,
+            @RequestBody UpdateRequest updateRequest) {
 
-  @GetMapping("/api/oauth2/{nickName}")
-  @Operation(summary = "닉네임 중복 판별 api", description = "닉네임 중복 판별 api")
-  public ApiResponse checkNickName(@PathVariable String nickName) {
-    Boolean checkNickName = oauthService.isExistNickName(nickName);
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(checkNickName));
-  }
+        Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(changeNickName));
+    }
 
-  @GetMapping("/api/oauth2/profile")
-  @Operation(summary = "로그인 유저 정보 판별 api", description = "로그인 유저 정보 판별 api")
-  public ApiResponse getProfileById(@RequestParam String memberId) {
-    OauthResponse oauthResponse = oauthService.getProfileById(memberId);
-
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(oauthResponse));
-  }
-
-  @PutMapping("/api/oauth2/{memberId}")
-  @Operation(summary = "닉네임 수정 api", description = "닉네임 수정 api")
-  public ApiResponse checkNickName(@PathVariable String memberId, @RequestBody UpdateRequest updateRequest) {
-
-    Boolean changeNickName = oauthService.updateNickName(memberId, updateRequest.getNickName());
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(changeNickName));
-  }
-
-  @DeleteMapping("/api/oauth2/{memberId}")
-  @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
-  public ApiResponse deleteProfile(@PathVariable String memberId) {
-    Boolean isDelete = oauthService.deleteProfile(memberId);
-    return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-        new SingleObject<>(isDelete));
-  }
+    @DeleteMapping("/api/oauth2/{memberId}")
+    @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
+    public ApiResponse deleteProfile(@PathVariable String memberId) {
+        Boolean isDelete = oauthService.deleteProfile(memberId);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(isDelete));
+    }
 
 
-
-  @PostMapping("/api/refresh/oauth2")
-  @Operation(summary = "사용 금지(작업 중)", description = "토큰 갱신 api")
-  public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName, @RequestParam String refreshToken) {
-    TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
-    return ResponseEntity.ok().body(tokenResponse);
-  }
-
-
+    @PostMapping("/api/refresh/oauth2")
+    @Operation(summary = "사용 금지(작업 중)", description = "토큰 갱신 api")
+    public ResponseEntity<TokenResponse> refreshToken(@RequestParam String nickName,
+            @RequestParam String refreshToken) {
+        TokenResponse tokenResponse = oauthService.refreshToken(nickName, refreshToken);
+        return ResponseEntity.ok().body(tokenResponse);
+    }
 }
