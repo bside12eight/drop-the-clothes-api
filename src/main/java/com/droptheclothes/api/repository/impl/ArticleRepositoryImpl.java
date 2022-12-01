@@ -10,9 +10,9 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.apache.commons.lang3.StringUtils;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
@@ -33,8 +33,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         }
 
         Predicate where = null;
-        if (!StringUtils.isBlank(request.getCategory()) && !request.getCategory().equals("전체")) {
-            where = ExpressionUtils.and(where, article.category.name.eq(request.getCategory()));
+        if (!Objects.isNull(request.getCategories())) {
+            where = ExpressionUtils.and(where, article.category.name.in(request.getCategories()));
         }
 
         return new JPAQueryFactory(entityManager)
