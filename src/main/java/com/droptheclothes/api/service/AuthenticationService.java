@@ -1,10 +1,14 @@
 package com.droptheclothes.api.service;
 
+import com.droptheclothes.api.model.dto.auth.JoinRequest;
 import com.droptheclothes.api.model.dto.auth.LoginRequest;
+import com.droptheclothes.api.model.dto.auth.LoginResponse;
+import com.droptheclothes.api.model.enums.LoginProviderType;
 
 public interface AuthenticationService {
 
-    void login(LoginRequest request);
+    Object login(LoginRequest request);
 
-    void signUp();
+    LoginResponse signUp(LoginProviderType provider,
+            JoinRequest request);
 }

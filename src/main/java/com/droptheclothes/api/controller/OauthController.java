@@ -43,9 +43,11 @@ public class OauthController {
         log.debug("loginWithToken2 executed");
         log.debug(String.format("provider: %s", provider));
         log.debug(String.format("accessToken: %s", loginRequest.getAccessToken()));
+        log.debug(String.format("identityToken: %s", loginRequest.getIdentityToken()));
 
         if (provider.equals(LoginProviderType.apple)) {
-            appleAuthenticationService.login(loginRequest);
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(appleAuthenticationService.login(loginRequest)));
         }
 
         String accessToken = loginRequest.getAccessToken();
@@ -67,9 +69,11 @@ public class OauthController {
         log.debug("join executed");
         log.debug(String.format("provider: %s", provider));
         log.debug(String.format("accessToken: %s", joinRequest.getAccessToken()));
+        log.debug(String.format("identityToken: %s", joinRequest.getIdentityToken()));
 
         if (provider.equals(LoginProviderType.apple)) {
-
+            return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                    new SingleObject<>(appleAuthenticationService.signUp(provider, joinRequest)));
         }
 
         String accessToken = joinRequest.getAccessToken();

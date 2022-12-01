@@ -1,10 +1,19 @@
 package com.droptheclothes.api.service;
 
 import com.droptheclothes.api.exception.AuthenticationException;
+import com.droptheclothes.api.jwt.JwtTokenProvider;
 import com.droptheclothes.api.model.dto.apple.ApplePublicKeys;
 import com.droptheclothes.api.model.dto.apple.ApplePublicKeys.ApplePublicKey;
 import com.droptheclothes.api.model.dto.apple.IdentityTokenHeader;
+import com.droptheclothes.api.model.dto.auth.JoinRequest;
 import com.droptheclothes.api.model.dto.auth.LoginRequest;
+import com.droptheclothes.api.model.dto.auth.LoginResponse;
+import com.droptheclothes.api.model.dto.auth.OauthResponse;
+import com.droptheclothes.api.model.entity.Member;
+import com.droptheclothes.api.model.enums.LoginProviderType;
+import com.droptheclothes.api.model.enums.Role;
+import com.droptheclothes.api.model.enums.SignType;
+import com.droptheclothes.api.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.math.BigInteger;
@@ -14,6 +23,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,21 +35,78 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class AppleAuthenticationService implements AuthenticationService {
 
+    private final MemberRepository memberRepository;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Override
-    public void login(LoginRequest request) {
+    public Object login(LoginRequest request) {
         IdentityTokenHeader identityTokenHeader = request.getIdentityTokenHeader();
 
+        ApplePublicKey matchedApplePublicKey = getMatchedApplePublicKey(identityTokenHeader);
+
+        Claims claims = getIdentityTokenClaims(request.getIdentityToken(), matchedApplePublicKey);
+
+        Member member = memberRepository.findByMemberId(String.format("apple_%s", claims.get("email")))
+                .orElse(null);
+
+        // 회원가입 여부 확인
+        if (Objects.isNull(member)) {
+            return OauthResponse.builder()
+                    .identityToken(request.getIdentityToken())
+                    .type(SignType.SIGNUP.getType())
+                    .build();
+        } else {
+            String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getMemberId()));
+            String refreshToken = jwtTokenProvider.createRefreshToken();
+
+            return LoginResponse.builder()
+                    .memberId(member.getMemberId())
+                    .nickName(member.getNickName())
+                    .email(member.getEmail())
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .type(SignType.SIGNIN.getType())
+                    .build();
+        }
+    }
+
+    @Override
+    public LoginResponse signUp(LoginProviderType provider, JoinRequest request) {
+        IdentityTokenHeader identityTokenHeader = request.getIdentityTokenHeader();
+
+        ApplePublicKey matchedApplePublicKey = getMatchedApplePublicKey(identityTokenHeader);
+
+        Claims claims = getIdentityTokenClaims(request.getIdentityToken(), matchedApplePublicKey);
+
+        // Member 저장
+        Member member = Member.builder()
+                .memberId(provider + "_" + claims.get("email"))
+                .provider(provider.toString())
+                .role(Role.USER)
+                .nickName(request.getNickName())
+                .email(claims.get("email").toString())
+                .build();
+        memberRepository.save(member);
+
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(member.getMemberId()));
+        String refreshToken = jwtTokenProvider.createRefreshToken();
+
+        return LoginResponse.builder()
+                .memberId(member.getMemberId())
+                .nickName(member.getNickName())
+                .email(member.getEmail())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .type(SignType.SIGNIN.getType())
+                .build();
+    }
+
+    private ApplePublicKey getMatchedApplePublicKey(IdentityTokenHeader identityTokenHeader) {
         ApplePublicKey matchedApplePublicKey = requestApplePublicKeys()
                 .getMatchedApplePublicKey(identityTokenHeader)
                 .orElseThrow(() -> new AuthenticationException("매칭되는 public key를 찾을 수 없습니다."));
-
-        Claims claims = getIdentityTokenClaims(request.getAccessToken(), matchedApplePublicKey);
-        System.out.println(claims);
-        // 회원가입 여부 확인
-        // 회원가입한 경우
-            // 인증용 JWT 토큰 생성해서 Front에 반환
-        // 회원가입하지 않은 경우
-            // OauthResponse 객체 반환
+        return matchedApplePublicKey;
     }
 
     private Claims getIdentityTokenClaims(String identityToken, ApplePublicKey applePublicKey) {
@@ -58,11 +125,6 @@ public class AppleAuthenticationService implements AuthenticationService {
             throw new AuthenticationException("토큰 파싱 도중 문제가 발생하였습니다.");
         }
         return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
-    }
-
-    @Override
-    public void signUp() {
-
     }
 
     private ApplePublicKeys requestApplePublicKeys() {

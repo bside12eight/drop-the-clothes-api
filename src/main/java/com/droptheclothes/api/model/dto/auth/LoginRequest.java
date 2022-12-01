@@ -13,8 +13,10 @@ public class LoginRequest {
 
     private String accessToken;
 
+    private String identityToken;
+
     public IdentityTokenHeader getIdentityTokenHeader() {
-        String headerString = accessToken.substring(0, accessToken.indexOf("."));
+        String headerString = identityToken.substring(0, identityToken.indexOf("."));
 
         try {
             return new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerString), "UTF-8"), IdentityTokenHeader.class);
