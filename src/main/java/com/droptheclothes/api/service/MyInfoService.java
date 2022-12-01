@@ -11,8 +11,10 @@ import com.droptheclothes.api.model.entity.ReportMember;
 import com.droptheclothes.api.model.entity.pk.BlockedMemberId;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.BlockedMemberRepository;
+import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.ReportMemberRepository;
 import com.droptheclothes.api.security.SecurityUtility;
+import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +33,22 @@ public class MyInfoService {
 
     private final BlockedMemberRepository blockedMemberRepository;
 
+    private final MemberRepository memberRepository;
+
     public MyInfoResponse getMyInfo() {
-        return MyInfoResponse.of(memberService.getMemberById(SecurityUtility.getMemberId()));
+        Member member = memberRepository.findByMemberId(SecurityUtility.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
+        if (member.isRemoved()) {
+            throw new IllegalArgumentException(MessageConstants.REMOVED_MEMBER_MESSAGE);
+        }
+        return MyInfoResponse.of(member);
     }
 
     @Transactional
     public void updateNickname(String nickname) {
+        if (memberRepository.findByNickName(nickname).isPresent()) {
+            throw new IllegalArgumentException(MessageConstants.ALREADY_EXIST_NICKNAME_MESSAGE);
+        }
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         member.changeNickName(nickname);
     }
@@ -44,6 +56,9 @@ public class MyInfoService {
     @Transactional
     public void updatePassword(String currentPassword, String password) {
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        if (member.isSocialLoginMember()) {
+            throw new IllegalArgumentException(MessageConstants.NO_NEED_PASSWORD_MESSAGE);
+        }
         member.changePassword(currentPassword, password);
     }
 
@@ -83,7 +98,7 @@ public class MyInfoService {
         Member blockedMember = memberService.getMemberById(memberId);
 
         BlockedMember blockedMemberEntity = blockedMemberRepository.findById(new BlockedMemberId(member.getMemberId(), blockedMember.getMemberId()))
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 차단 내역이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
 
         blockedMemberRepository.delete(blockedMemberEntity);
     }

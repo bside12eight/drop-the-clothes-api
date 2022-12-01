@@ -1,5 +1,6 @@
 package com.droptheclothes.api.model.entity;
 
+import com.droptheclothes.api.utility.BusinessConstants;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,5 +64,10 @@ public class Comment {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+        this.comment = BusinessConstants.DELETED_COMMENT;
     }
 }

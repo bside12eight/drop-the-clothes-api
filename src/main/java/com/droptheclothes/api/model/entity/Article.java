@@ -14,13 +14,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Article {
 
     @Id
@@ -44,6 +47,10 @@ public class Article {
 
     private int dropCount;
 
+    private int commentCount;
+
+    private double popularity;
+
     private int chargedCount;
 
     @OneToMany(mappedBy = "article")
@@ -66,44 +73,47 @@ public class Article {
                 .description(request.getDescription())
                 .keepCount(0)
                 .dropCount(0)
+                .commentCount(0)
                 .chargedCount(0)
+                .popularity(0)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
 
-    @Builder
-    public Article(Long articleId, Member member, Category category, String title,
-            String description, int keepCount, int dropCount, int chargedCount,
-            Set<Comment> comments, LocalDateTime createdAt, LocalDateTime updatedAt,
-            LocalDateTime deletedAt) {
-        this.articleId = articleId;
-        this.member = member;
-        this.category = category;
-        this.title = title;
-        this.description = description;
-        this.keepCount = keepCount;
-        this.dropCount = dropCount;
-        this.chargedCount = chargedCount;
-        this.comments = comments;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
+    public void vote(VoteType voteType) {
+        if (voteType.equals(VoteType.KEEP)) {
+            this.keepCount++;
+        } else {
+            this.dropCount++;
+        }
+        updatePopularity();
     }
 
-    public int vote(VoteType voteType) {
+    public void cancelVote(VoteType voteType) {
         if (voteType.equals(VoteType.KEEP)) {
-            return this.keepCount++;
+            this.keepCount--;
         } else {
-            return this.dropCount++;
+            this.dropCount--;
         }
+        updatePopularity();
     }
 
-    public int cancelVote(VoteType voteType) {
-        if (voteType.equals(VoteType.KEEP)) {
-            return this.keepCount--;
-        } else {
-            return this.dropCount--;
-        }
+    public void addComment() {
+        this.commentCount++;
+        updatePopularity();
+    }
+
+    public void removeComment() {
+        this.commentCount--;
+        updatePopularity();
+    }
+
+    public void addCharge() {
+        this.chargedCount++;
+    }
+
+    private void updatePopularity() {
+        this.popularity = ((this.keepCount + this.dropCount) * 0.3) + (this.commentCount * 0.7);
     }
 }

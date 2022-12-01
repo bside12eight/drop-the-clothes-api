@@ -1,5 +1,6 @@
 package com.droptheclothes.api.model.dto.keepordrop;
 
+import com.droptheclothes.api.utility.MessageConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +13,11 @@ public class ArticleCommentRegisterRequest {
 
     private Long parentId;
 
-    public boolean checkArgumentValidation() {
+    public ArticleCommentRegisterRequest(String comment, Long parentId) {
         if (StringUtils.isBlank(comment)) {
-            throw new IllegalArgumentException("댓글 내용을 입력해주세요.");
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
-        return true;
+        this.comment = comment;
+        this.parentId = parentId;
     }
 }

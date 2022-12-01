@@ -10,9 +10,9 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.apache.commons.lang3.StringUtils;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
@@ -21,23 +21,28 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     @Override
     public List<Article> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
-        // TODO: 조회 조건 고도화 필요함
+        final int PAGE_SIZE = 30;
+
         QArticle article = QArticle.article;
 
         OrderSpecifier<?> orderSpecifier = null;
         if (request.getOrderType().equals(OrderType.LATEST)) {
             orderSpecifier = article.createdAt.desc();
+        } else if (request.getOrderType().equals(OrderType.POPULARITY)) {
+            orderSpecifier = article.popularity.desc();
         }
 
         Predicate where = null;
-        if (!StringUtils.isBlank(request.getCategory())) {
-            where = ExpressionUtils.and(where, article.category.name.eq(request.getCategory()));
+        if (!Objects.isNull(request.getCategories())) {
+            where = ExpressionUtils.and(where, article.category.name.in(request.getCategories()));
         }
 
         return new JPAQueryFactory(entityManager)
                 .select(article)
                 .from(article)
                 .where(where)
+                .offset(request.getOffset(PAGE_SIZE))
+                .limit(PAGE_SIZE)
                 .orderBy(orderSpecifier)
                 .fetch();
     }

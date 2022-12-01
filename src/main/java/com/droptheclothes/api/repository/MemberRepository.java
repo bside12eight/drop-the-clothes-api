@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member, String> {
 
-  Member findByEmail(String email);
+    Optional<Member> findByEmail(String email);
 
-  Optional<Member> findByMemberId(String memberId);
+    Optional<Member> findByMemberId(String memberId);
 
-  Member findByNickName(String nickName);
+    Optional<Member> findByNickName(String nickName);
 
-  Member findByMemberIdAndIsRemoved(String memberId, boolean isRemoved);
+    Member findByMemberIdAndIsRemoved(String memberId, boolean isRemoved);
 }
