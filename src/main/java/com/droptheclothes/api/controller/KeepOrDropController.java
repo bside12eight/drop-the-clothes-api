@@ -9,6 +9,7 @@ import com.droptheclothes.api.model.dto.keepordrop.ArticleCommentResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRegisterRequest;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequest;
+import com.droptheclothes.api.model.enums.ChargeReasonType;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.security.LoginCheck;
@@ -107,6 +108,15 @@ public class KeepOrDropController {
     public ApiResponse<List<String>> getItemCategories() {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
                 new CollectionObject<>(keepOrDropService.getItemCategories()));
+    }
+
+    @LoginCheck
+    @Operation(summary = "버릴까 말까 글 신고 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
+    @PostMapping("/api/keep-or-drop/{articleId}")
+    public ApiResponse blockKeepOrDropArticle(@PathVariable Long articleId, ChargeReasonType chargeReason) {
+        keepOrDropService.blockKeepOrDropArticle(articleId, chargeReason);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }
 
     private void checkImageCountValidation(List<MultipartFile> images) {

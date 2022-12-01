@@ -8,13 +8,16 @@ import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleRetrieveRequ
 import com.droptheclothes.api.model.entity.Article;
 import com.droptheclothes.api.model.entity.ArticleImage;
 import com.droptheclothes.api.model.entity.Category;
+import com.droptheclothes.api.model.entity.Charge;
 import com.droptheclothes.api.model.entity.Comment;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.model.entity.Vote;
+import com.droptheclothes.api.model.enums.ChargeReasonType;
 import com.droptheclothes.api.model.enums.VoteType;
 import com.droptheclothes.api.repository.ArticleImageRepository;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.CategoryRepository;
+import com.droptheclothes.api.repository.ChargeRepository;
 import com.droptheclothes.api.repository.CommentRepository;
 import com.droptheclothes.api.repository.VoteRepository;
 import com.droptheclothes.api.security.SecurityUtility;
@@ -50,6 +53,8 @@ public class KeepOrDropService {
     private final CommentRepository commentRepository;
 
     private final VoteRepository voteRepository;
+
+    private final ChargeRepository chargeRepository;
 
     @Transactional
     public void registerKeepOrDropArticle(KeepOrDropArticleRegisterRequest request, List<MultipartFile> images) {
@@ -205,6 +210,23 @@ public class KeepOrDropService {
             }
             voteRepository.delete(beforeVote);
         }
+    }
+
+    @Transactional
+    public void blockKeepOrDropArticle(Long articleId, ChargeReasonType chargeReason) {
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
+        article.addCharge();
+
+        Charge charge = Charge.builder()
+                .member(member)
+                .article(article)
+                .chargeReason(chargeReason)
+                .createdAt(LocalDateTime.now())
+                .build();
+        chargeRepository.save(charge);
     }
 
     private List<String> storeArticleImages(Article article, List<MultipartFile> images) {
