@@ -73,11 +73,6 @@ public class KeepOrDropService {
     }
 
     public List<KeepOrDropArticleResponse> getKeepOrDropArticles(KeepOrDropArticleRetrieveRequest request) {
-        if (!request.getCategory().equals("전체")) {
-            categoryRepository.findByName(request.getCategory())
-                    .orElseThrow(() -> new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE));
-        }
-
         List<Article> articles = articleRepository.getKeepOrDropArticles(request);
         return KeepOrDropArticleResponse.of(articles);
     }
