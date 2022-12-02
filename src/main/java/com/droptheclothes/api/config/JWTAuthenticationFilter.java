@@ -17,14 +17,20 @@ import org.springframework.web.filter.GenericFilterBean;
 @RequiredArgsConstructor
 public class JWTAuthenticationFilter extends GenericFilterBean {
 
+    public static final String AUTH_HEADER_NAME = "Authorization";
+    
     private final JwtTokenProvider tokenProvider;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        checkAuthenticationByToken(request);
+        chain.doFilter(request,response);
+    }
+
+    private void checkAuthenticationByToken(ServletRequest request) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String authorization = httpServletRequest.getHeader("Authorization");
+        String authorization = httpServletRequest.getHeader(AUTH_HEADER_NAME);
         String memberId = tokenProvider.getPayload(authorization);
         SecurityContextHolder.getContext().setAuthentication(new AuthenticatedUser(memberId));
-        chain.doFilter(request,response);
     }
 }

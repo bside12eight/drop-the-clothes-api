@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 @Configuration
-@OpenAPIDefinition(info = @Info(title="DroptheClothes API") )
+@OpenAPIDefinition(info = @Info(title="Drop The Clothes API") )
 public class SwaggerConfig {
 
     private final String SWAGGER_UI_SERVER_PROPERTY_KEY = "springdoc.swagger-ui.server";

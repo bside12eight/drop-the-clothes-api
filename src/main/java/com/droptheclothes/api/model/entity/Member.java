@@ -3,6 +3,7 @@ package com.droptheclothes.api.model.entity;
 import com.droptheclothes.api.model.base.BaseTimeEntity;
 import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
+import com.droptheclothes.api.utility.BusinessConstants;
 import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -50,25 +51,27 @@ public class Member extends BaseTimeEntity {
 
     private boolean isRemoved;
 
-  //email,nickName, provide, providerId)
-  public static Member createMember(
-      String providerId
-      , LoginProviderType provider
-      , String nickName
-      , String email
-  ){
-    Member member = Member.builder()
-        .memberId(providerId)
-        .provider(provider.toString())
-        .role(Role.USER)
-        .email(email)
-        .nickName(nickName)
-        .build();
-
-    return member;
-  }
     //email,nickName, provide, providerId)
-    public static Member createMember(String providerId, String provider, String nickName, String email) {
+    public static Member createMember(
+            String providerId
+            , LoginProviderType provider
+            , String nickName
+            , String email
+    ) {
+        Member member = Member.builder()
+                .memberId(providerId)
+                .provider(provider.toString())
+                .role(Role.USER)
+                .email(email)
+                .nickName(nickName)
+                .build();
+
+        return member;
+    }
+
+    //email,nickName, provide, providerId)
+    public static Member createMember(String providerId, String provider, String nickName,
+            String email) {
         return Member.builder()
                 .memberId(providerId)
                 .provider(provider)
@@ -83,7 +86,11 @@ public class Member extends BaseTimeEntity {
     }
 
     public void removeMember() {
+        this.memberId = this.memberId + BusinessConstants.DELETED_MARK + LocalDateTime.now().format(BusinessConstants.dateTimeFormatter);
+        this.email = this.email + BusinessConstants.DELETED_MARK + LocalDateTime.now().format(BusinessConstants.dateTimeFormatter);
+        this.nickName = null;
         this.isRemoved = true;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public void changePassword(String currentPassword, String password) {

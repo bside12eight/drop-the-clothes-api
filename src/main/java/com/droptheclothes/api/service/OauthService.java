@@ -13,6 +13,8 @@ import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.OauthRepository;
+import com.droptheclothes.api.security.SecurityUtility;
+import com.droptheclothes.api.utility.MessageConstants;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,8 +123,7 @@ public class OauthService {
         Member member = getUserProfile(provider, tokenResponse);
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(member.getMemberId(),
-                false);
+        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(member.getMemberId(), false).orElse(null);
 
         if (memberEntity == null) {
             type = SignType.SIGNUP.getType();
@@ -162,13 +163,13 @@ public class OauthService {
         String email = oauth2UserInfo.getEmail();
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(providerId, false);
+        Member member = memberRepository.findByMemberIdAndIsRemoved(providerId, false).orElse(null);
 
-        if (memberEntity == null) {
-            memberEntity = Member.createMember(providerId, provider, nickName, email);
+        if (member == null) {
+            member = Member.createMember(providerId, provider, nickName, email);
         }
 
-        return memberEntity;
+        return member;
     }
 
     private Member getUserProfileWithNewNickName(
@@ -190,15 +191,15 @@ public class OauthService {
         String email = oauth2UserInfo.getEmail();
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(providerId, false);
+        Member member = memberRepository.findByMemberIdAndIsRemoved(providerId, false).orElse(null);
 
-        if (memberEntity == null) {
-            memberEntity = Member.createMember(providerId, provider, nickName, email);
+        if (member == null) {
+            member = Member.createMember(providerId, provider, nickName, email);
         } else {
-            memberEntity.changeNickName(nickName);
+            member.changeNickName(nickName);
         }
 
-        return memberEntity;
+        return member;
     }
 
     /**
@@ -244,52 +245,17 @@ public class OauthService {
 
     }
 
-    public Boolean isExistNickName(String nickName) {
+    public Boolean isNickNameExist(String nickName) {
         return memberRepository.findByNickName(nickName).isPresent();
     }
 
-    public Boolean updateNickName(String memberId, String nickName) {
-        Boolean changeNickName = false;
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId, false);
 
-        if (!isExistNickName(nickName)) {
-            memberEntity.changeNickName(nickName);
-            memberRepository.save(memberEntity);
-            changeNickName = true;
-        } else {
-            throw new IllegalArgumentException("존재하는 회원이 없습니다.");
-        }
+    public boolean deleteMember() {
+        Member member = memberRepository.findByMemberIdAndIsRemoved(SecurityUtility.getMemberId(), false)
+                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
 
-        return changeNickName;
-    }
-
-
-    public Boolean deleteProfile(String memberId) {
-        Boolean isDelete = false;
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId, false);
-
-        if (memberEntity != null) {
-            isDelete = true;
-            memberEntity.removeMember();
-            memberRepository.save(memberEntity);
-        } else {
-            throw new IllegalArgumentException("존재하는 회원이 없습니다.");
-        }
-
-        return isDelete;
-    }
-
-    public OauthResponse getProfileById(String memberId) {
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(memberId, false);
-
-        if (memberEntity == null) {
-            throw new IllegalArgumentException("존재하는 회원이 없습니다.");
-        }
-
-        return OauthResponse.builder()
-                .nickName(memberEntity.getNickName())
-                .email(memberEntity.getEmail())
-                .type(memberEntity.getMemberId().split("_")[0])
-                .build();
+        member.removeMember();
+        memberRepository.save(member);
+        return true;
     }
 }
