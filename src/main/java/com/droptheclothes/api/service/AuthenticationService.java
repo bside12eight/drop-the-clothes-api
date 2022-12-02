@@ -9,6 +9,5 @@ public interface AuthenticationService {
 
     Object login(LoginRequest request);
 
-    LoginResponse signUp(LoginProviderType provider,
-            JoinRequest request);
+    LoginResponse signUp(LoginProviderType provider, JoinRequest request);
 }

@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FcmRequest {
-  private String targetToken;
-  private String title;
-  private String body;
+
+    private String targetToken;
+    private String title;
+    private String body;
 }

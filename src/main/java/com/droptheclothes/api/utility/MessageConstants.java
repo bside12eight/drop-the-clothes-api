@@ -23,4 +23,6 @@ public class MessageConstants {
     public static final String NO_NEED_PASSWORD_MESSAGE = "소셜 로그인 회원은 비밀번호를 설정할 수 없습니다.";
 
     public static final String INVALID_ADDRESS_MESSAGE = "올바른 주소가 아닙니다.";
+
+    public static final String NO_AUTHORITY_MESSAGE = "로그인이 필요합니다.";
 }

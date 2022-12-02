@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdateRequest {
-  private String nickName;
+
+    private String nickName;
 }
