@@ -25,4 +25,10 @@ public class MessageConstants {
     public static final String INVALID_ADDRESS_MESSAGE = "올바른 주소가 아닙니다.";
 
     public static final String NO_AUTHORITY_MESSAGE = "로그인이 필요합니다.";
+
+    public static final String TOKEN_PARSING_ERROR_MESSAGE = "토큰 파싱 도중 문제가 발생하였습니다.";
+
+    public static final String APPLE_PUBLIC_KEY_ERROR_MESSAGE = "매칭되는 public key를 찾을 수 없습니다.";
+
+    public static final String APPLE_TOKEN_ERROR_MESSAGE = "Apple 서버로부터 Auth Token 획득에 실패하였습니다.";
 }

@@ -31,12 +31,13 @@ public class Member extends BaseTimeEntity {
     @Id
     private String memberId;
 
-    private String provider; // joinType
+    @Enumerated(EnumType.STRING)
+    private LoginProviderType provider;
 
     private String nickName;
 
     @Column(unique = true)
-    private String email; // UQ
+    private String email;
 
     private String password;
 
@@ -51,34 +52,16 @@ public class Member extends BaseTimeEntity {
 
     private boolean isRemoved;
 
-    //email,nickName, provide, providerId)
-    public static Member createMember(
-            String providerId
-            , LoginProviderType provider
-            , String nickName
-            , String email
-    ) {
+    public static Member createMember(String providerId, LoginProviderType provider, String nickName, String email) {
         Member member = Member.builder()
-                .memberId(providerId)
-                .provider(provider.toString())
-                .role(Role.USER)
-                .email(email)
-                .nickName(nickName)
-                .build();
-
-        return member;
-    }
-
-    //email,nickName, provide, providerId)
-    public static Member createMember(String providerId, String provider, String nickName,
-            String email) {
-        return Member.builder()
                 .memberId(providerId)
                 .provider(provider)
                 .role(Role.USER)
                 .email(email)
                 .nickName(nickName)
                 .build();
+
+        return member;
     }
 
     public void changeNickName(String nickName) {

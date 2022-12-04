@@ -14,6 +14,7 @@ import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
 import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.repository.MemberRepository;
+import com.droptheclothes.api.utility.MessageConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.math.BigInteger;
@@ -26,6 +27,7 @@ import java.util.Base64;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,6 +40,9 @@ public class AppleAuthenticationService implements AuthenticationService {
     private final MemberRepository memberRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${apple.public-key.endpoint}")
+    private String applePublicKeyEndpoint;
 
     @Override
     public Object login(LoginRequest request) {
@@ -82,7 +87,7 @@ public class AppleAuthenticationService implements AuthenticationService {
         // Member 저장
         Member member = Member.builder()
                 .memberId(provider + "_" + claims.get("email"))
-                .provider(provider.toString())
+                .provider(provider)
                 .role(Role.USER)
                 .nickName(request.getNickName())
                 .email(claims.get("email").toString())
@@ -105,7 +110,7 @@ public class AppleAuthenticationService implements AuthenticationService {
     private ApplePublicKey getMatchedApplePublicKey(IdentityTokenHeader identityTokenHeader) {
         ApplePublicKey matchedApplePublicKey = requestApplePublicKeys()
                 .getMatchedApplePublicKey(identityTokenHeader)
-                .orElseThrow(() -> new AuthenticationException("매칭되는 public key를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AuthenticationException(MessageConstants.APPLE_PUBLIC_KEY_ERROR_MESSAGE));
         return matchedApplePublicKey;
     }
 
@@ -121,16 +126,16 @@ public class AppleAuthenticationService implements AuthenticationService {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(applePublicKey.getKty());
             publicKey = keyFactory.generatePublic(publicKeySpec);
+            return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
-            throw new AuthenticationException("토큰 파싱 도중 문제가 발생하였습니다.");
+            throw new AuthenticationException(MessageConstants.TOKEN_PARSING_ERROR_MESSAGE);
         }
-        return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
     }
 
     private ApplePublicKeys requestApplePublicKeys() {
         return WebClient.create()
                 .get()
-                .uri("https://appleid.apple.com/auth/keys")
+                .uri(applePublicKeyEndpoint)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApplePublicKeys>() {
                 })
