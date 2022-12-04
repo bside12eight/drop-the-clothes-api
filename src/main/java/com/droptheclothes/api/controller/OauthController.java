@@ -94,8 +94,8 @@ public class OauthController {
     @LoginCheck
     @DeleteMapping("/api/oauth2/member")
     @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
-    public ApiResponse deleteMember() {
-        oauthService.deleteMember();
+    public ApiResponse deleteMember(String authorizationCode) {
+        oauthService.deleteMember(authorizationCode);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(null));
     }
 

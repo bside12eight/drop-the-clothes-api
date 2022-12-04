@@ -30,6 +30,13 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseBody
+    @ExceptionHandler({AppleRequestException.class})
+    public ApiResponse handleAppleRequestException(HttpServletRequest request, Exception exception) {
+        writeWarningLog(request);
+        return createResponse(ResultCode.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ResponseBody
     @ExceptionHandler({ObjectStorageException.class})
     public ApiResponse handleObjectStorageException(HttpServletRequest request, ObjectStorageException exception) {
         writeErrorLog(request, exception);

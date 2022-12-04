@@ -1,7 +1,9 @@
 package com.droptheclothes.api.service;
 
+import com.droptheclothes.api.exception.AppleRequestException;
 import com.droptheclothes.api.jwt.JwtTokenProvider;
 import com.droptheclothes.api.model.dto.OauthInfoRequest;
+import com.droptheclothes.api.model.dto.apple.AppleTokenResponse;
 import com.droptheclothes.api.model.dto.auth.KakaoUserInfo;
 import com.droptheclothes.api.model.dto.auth.LoginResponse;
 import com.droptheclothes.api.model.dto.auth.Oauth2UserInfo;
@@ -15,12 +17,35 @@ import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.OauthRepository;
 import com.droptheclothes.api.security.SecurityUtility;
 import com.droptheclothes.api.utility.MessageConstants;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +56,15 @@ public class OauthService {
     private final OauthRepository oauthRepository;
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${apple.key-id}")
+    private String appleSignKeyId;
+
+    @Value("${apple.team-id}")
+    private String appleTeamId;
+
+    @Value("${apple.bundle-id}")
+    private String appleBundleId;
 
     public void saveAccessToken(OauthInfoRequest requestDto) {
         oauthRepository.save(requestDto.toEntity());
@@ -250,12 +284,102 @@ public class OauthService {
     }
 
 
-    public boolean deleteMember() {
+    @Transactional
+    public boolean deleteMember(String authorizationCode) {
         Member member = memberRepository.findByMemberIdAndIsRemoved(SecurityUtility.getMemberId(), false)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
 
         member.removeMember();
         memberRepository.save(member);
+
+        if (member.getProvider().equals(LoginProviderType.apple)) {
+            if (Objects.isNull(authorizationCode)) {
+                throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
+            }
+
+            this.revoke(authorizationCode);
+        }
         return true;
+    }
+
+    private void revoke(String authorizationCode) {
+        AppleTokenResponse appleTokenResponse = GenerateAuthToken(authorizationCode);
+
+        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", appleBundleId);
+        params.add("client_secret", createClientSecret());
+        params.add("token", appleTokenResponse.getAccessToken());
+
+        if (appleTokenResponse.getAccessToken() != null) {
+            WebClient.create()
+                    .post()
+                    .uri("https://appleid.apple.com/auth/revoke")
+                    .bodyValue(params)
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<>() {})
+                    .block();
+        }
+    }
+
+    private AppleTokenResponse GenerateAuthToken(String authorizationCode) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", appleBundleId);
+        params.add("client_secret", createClientSecret());
+        params.add("grant_type", "authorization_code");
+        params.add("code", authorizationCode);
+
+        WebClient.create()
+                .post()
+                .uri("https://appleid.apple.com/auth/token")
+                .bodyValue(params)
+                .exchange()
+                .flatMap(clientResponse -> {
+                    if (!clientResponse.statusCode().is2xxSuccessful()) {
+                        return Mono.error(new AppleRequestException(MessageConstants.APPLE_TOKEN_ERROR_MESSAGE));
+                    }
+                    return clientResponse.bodyToMono(AppleTokenResponse.class);
+                })
+                .block();
+
+        return null;
+    }
+
+    private String createClientSecret() {
+        Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
+        Map<String, Object> header = new HashMap<>();
+        header.put("alg", "ES256");
+        header.put("kid", appleSignKeyId);
+
+        return Jwts.builder()
+                .setHeaderParams(header)
+                .setIssuer(appleTeamId)
+                .setIssuedAt(new Date(System.currentTimeMillis())) // 발행 시간 - UNIX 시간
+                .setExpiration(expirationDate) // 만료 시간
+                .setAudience("https://appleid.apple.com")
+                .setSubject(appleBundleId)
+                .signWith(SignatureAlgorithm.ES256, getPrivateKey())
+                .compact();
+    }
+
+    private PrivateKey getPrivateKey() {
+        try {
+            ClassPathResource resource = new ClassPathResource("auth-key.p8");
+            String content = new String(Files.readAllBytes(Paths.get(resource.getURI())), "utf-8");
+            String privateKey = content.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s+", "");
+
+            KeyFactory kf = KeyFactory.getInstance("EC");
+            return kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Java did not support the algorithm:" + "EC", e);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException("Invalid key format");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
