@@ -16,6 +16,8 @@ import com.droptheclothes.api.repository.ReportMemberRepository;
 import com.droptheclothes.api.security.SecurityUtility;
 import com.droptheclothes.api.utility.BusinessConstants;
 import com.droptheclothes.api.utility.MessageConstants;
+import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,25 +48,22 @@ public class ClothingBinReportService {
     public void reportNewClothingBin(ClothingBinReportRequest request, List<MultipartFile> images) {
         Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
 
-        if (isAlreadyRegisteredAddress(request.getAddress())) {
-            throw new IllegalArgumentException("해당 위치에는 이미 등록된 의류수거함이 존재합니다.");
-        }
+        checkAlreadyExistClothingBin(request);
+
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
 
         Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
                                         .orElse(Report.of(request, coordinate, ReportType.NEW));
 
-        if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
-            throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
-        }
+        checkDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()));
 
         updateReportCount(report);
+
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
 
-        if (!Objects.isNull(images)) {
-            storeClothingBinReportImages(report, images).stream()
-                    .forEach(filepath -> reportImageRepository.save(ReportImage.of(reportMember, filepath)));
-        }
+        uploadReportImages(images, report, reportMember);
+
+        registerClothingBinReported3Times(report);
     }
 
     @Transactional
@@ -79,17 +78,15 @@ public class ClothingBinReportService {
         Report report = clothingBinReportRepository.findByClothingBinAndType(clothingBin, ReportType.UPDATE)
                 .orElse(Report.of(clothingBin, request, coordinate, ReportType.UPDATE));
 
-        if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
-            throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
-        }
+        checkDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()));
 
         updateReportCount(report);
+
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
 
-        if (!Objects.isNull(images)) {
-            storeClothingBinReportImages(report, images).stream()
-                    .forEach(filepath -> reportImageRepository.save(ReportImage.of(reportMember, filepath)));
-        }
+        uploadReportImages(images, report, reportMember);
+
+        updateClothingBinReported3Times(clothingBin, report);
     }
 
     @Transactional
@@ -104,30 +101,40 @@ public class ClothingBinReportService {
         Report report = clothingBinReportRepository.findByClothingBinAndType(clothingBin, ReportType.DELETE)
                 .orElse(Report.of(clothingBin, request, coordinate, ReportType.DELETE));
 
-        if (isDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()))) {
-            throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
-        }
+        checkDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()));
 
         updateReportCount(report);
+
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
 
-        if (!Objects.isNull(images)) {
-            storeClothingBinReportImages(report, images).stream()
-                    .forEach(filepath -> reportImageRepository.save(ReportImage.of(reportMember, filepath)));
+        uploadReportImages(images, report, reportMember);
+
+        deleteClothingBinReported3Times(clothingBin, report);
+    }
+
+    private void checkAlreadyExistClothingBin(ClothingBinReportRequest request) {
+        if (clothingBinRepository.findByAddress(request.getAddress()).isPresent()) {
+            throw new IllegalArgumentException(MessageConstants.ALREADY_EXIST_CLOTHING_BIN_MESSAGE);
         }
     }
 
-    public boolean isAlreadyRegisteredAddress(String address) {
-        return clothingBinRepository.findByAddress(address).isPresent();
-    }
-
-    private boolean isDuplicatedReport(ReportMemberId reportMemberId) {
-        return reportMemberRepository.findById(reportMemberId).isPresent();
+    private boolean checkDuplicatedReport(ReportMemberId reportMemberId) {
+        if (reportMemberRepository.findById(reportMemberId).isPresent()) {
+            throw new IllegalArgumentException(MessageConstants.DUPLICATED_REPORT_MESSAGE);
+        }
+        return false;
     }
 
     private void updateReportCount(Report report) {
         report.addReportCount();
         clothingBinReportRepository.save(report);
+    }
+
+    private void uploadReportImages(List<MultipartFile> images, Report report, ReportMember reportMember) {
+        if (!Objects.isNull(images)) {
+            storeClothingBinReportImages(report, images).stream()
+                    .forEach(filepath -> reportImageRepository.save(ReportImage.of(reportMember, filepath)));
+        }
     }
 
     private List<String> storeClothingBinReportImages(Report report, List<MultipartFile> images) {
@@ -139,5 +146,51 @@ public class ClothingBinReportService {
         return images.stream()
                 .map(image -> objectStorageService.uploadFileToObjectStorage(DIRECTORY, image))
                 .collect(Collectors.toList());
+    }
+
+    private String getFirstImage(Report report) {
+        ReportMember reportMember = report.getReportMembers().iterator().next();
+        Iterator<ReportImage> reportImageIterator = reportMember.getReportImage().iterator();
+        if (!reportImageIterator.hasNext()) {
+            return null;
+        }
+        return reportImageIterator.next().getFilepath();
+    }
+
+    private boolean registerClothingBinReported3Times(Report report) {
+        if (report.getReportCount() < BusinessConstants.MAX_REPORT_COUNT) {
+            return false;
+        }
+        ClothingBin clothingBin = ClothingBin.builder()
+                .address(report.getAddress())
+                .detailedAddress(report.getDetailedAddress())
+                .latitude(report.getLatitude())
+                .longitude(report.getLongitude())
+                .image(getFirstImage(report))
+                .active(true)
+                .chargedCount(0)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        clothingBinRepository.save(clothingBin);
+        return true;
+    }
+
+    private boolean updateClothingBinReported3Times(ClothingBin clothingBin, Report report) {
+        if (report.getReportCount() < BusinessConstants.MAX_REPORT_COUNT) {
+            return false;
+        }
+        String firstImagePath = getFirstImage(report);
+        clothingBin.updateClothingBin(report, firstImagePath);
+        clothingBinRepository.save(clothingBin);
+        return true;
+    }
+
+    private boolean deleteClothingBinReported3Times(ClothingBin clothingBin, Report report) {
+        if (report.getReportCount() < BusinessConstants.MAX_REPORT_COUNT) {
+            return false;
+        }
+        clothingBin.inactiveClothingBin();
+        return true;
     }
 }
