@@ -31,4 +31,6 @@ public class MessageConstants {
     public static final String APPLE_PUBLIC_KEY_ERROR_MESSAGE = "매칭되는 public key를 찾을 수 없습니다.";
 
     public static final String APPLE_TOKEN_ERROR_MESSAGE = "Apple 서버로부터 Auth Token 획득에 실패하였습니다.";
+
+    public static final String ALREADY_EXIST_CLOTHING_BIN_MESSAGE = "해당 위치에는 이미 등록된 의류수거함이 존재합니다.";
 }

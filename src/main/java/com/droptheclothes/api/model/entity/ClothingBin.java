@@ -9,10 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SqlResultSetMapping;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @SqlResultSetMapping(
         name = "ClothingBinsResponse",
         classes = @ConstructorResult(
@@ -56,4 +62,21 @@ public class ClothingBin {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    public ClothingBin updateClothingBin(Report report, String firstImagePath) {
+        this.address = report.getAddress();
+        this.detailedAddress = report.getDetailedAddress();
+        this.latitude = report.getLatitude();
+        this.longitude = report.getLongitude();
+        this.image = firstImagePath;
+        this.active = true;
+        this.chargedCount = 0;
+        this.updatedAt = LocalDateTime.now();
+        return this;
+    }
+
+    public ClothingBin inactiveClothingBin() {
+        this.active = false;
+        return this;
+    }
 }

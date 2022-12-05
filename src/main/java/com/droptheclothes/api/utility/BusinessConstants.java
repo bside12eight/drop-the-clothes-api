@@ -17,4 +17,6 @@ public class BusinessConstants {
     public static final String DELETED_MARK = "_deleted_";
 
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    public static final int MAX_REPORT_COUNT = 3;
 }
