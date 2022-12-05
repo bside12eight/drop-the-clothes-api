@@ -33,7 +33,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         }
 
         Predicate where = null;
-        if (!Objects.isNull(request.getCategories())) {
+        if (!Objects.isNull(request.getCategories()) && !request.getCategories().contains("전체")) {
             where = ExpressionUtils.and(where, article.category.name.in(request.getCategories()));
         }
 
