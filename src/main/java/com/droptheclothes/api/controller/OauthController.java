@@ -101,6 +101,8 @@ public class OauthController {
         if (Objects.isNull(authorizationCode)) {
             throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
+        log.error(String.format("authorizationCode: %s", authorizationCode));
+
         oauthService.deleteMember(authorizationCode);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(null));
     }
