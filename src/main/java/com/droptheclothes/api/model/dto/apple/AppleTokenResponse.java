@@ -5,17 +5,13 @@ import lombok.Getter;
 @Getter
 public class AppleTokenResponse {
 
-    private String accessToken;
+    private String access_token;
 
-    private int expiresIn;
+    private int expires_in;
 
-    private String idToken;
+    private String id_token;
 
-    private String refreshToken;
+    private String refresh_token;
 
-    private String tokenType;
-
-    private String error;
-
-    private String errorDescription;
+    private String token_type;
 }

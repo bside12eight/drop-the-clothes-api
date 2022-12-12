@@ -308,9 +308,9 @@ public class OauthService {
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", appleBundleId);
         params.add("client_secret", createClientSecret());
-        params.add("token", appleTokenResponse.getAccessToken());
+        params.add("token", appleTokenResponse.getAccess_token());
 
-        if (appleTokenResponse.getAccessToken() != null) {
+        if (appleTokenResponse.getAccess_token() != null) {
             WebClient.create()
                     .post()
                     .uri("https://appleid.apple.com/auth/revoke")
@@ -328,7 +328,7 @@ public class OauthService {
         params.add("grant_type", "authorization_code");
         params.add("code", authorizationCode);
 
-        WebClient.create()
+        return WebClient.create()
                 .post()
                 .uri("https://appleid.apple.com/auth/token")
                 .bodyValue(params)
@@ -340,8 +340,6 @@ public class OauthService {
                     return clientResponse.bodyToMono(AppleTokenResponse.class);
                 })
                 .block();
-
-        return null;
     }
 
     private String createClientSecret() {
@@ -363,7 +361,7 @@ public class OauthService {
 
     private PrivateKey getPrivateKey() {
         try {
-            ClassPathResource resource = new ClassPathResource("auth-key.p8");
+            ClassPathResource resource = new ClassPathResource("AuthKey_L4GG84VHG4.p8");
             String content = new String(Files.readAllBytes(Paths.get(resource.getURI())), "utf-8");
             String privateKey = content.replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
