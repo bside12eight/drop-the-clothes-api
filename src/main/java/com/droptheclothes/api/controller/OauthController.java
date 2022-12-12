@@ -14,9 +14,7 @@ import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.security.LoginCheck;
 import com.droptheclothes.api.service.AppleAuthenticationService;
 import com.droptheclothes.api.service.OauthService;
-import com.droptheclothes.api.utility.MessageConstants;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -97,10 +95,6 @@ public class OauthController {
     @DeleteMapping("/api/oauth2/member")
     @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
     public ApiResponse deleteMember(String authorizationCode) {
-        // TODO: 임시 코드 validation check 삭제해야함
-        if (Objects.isNull(authorizationCode)) {
-            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
-        }
         log.error(String.format("authorizationCode: %s", authorizationCode));
 
         oauthService.deleteMember(authorizationCode);
