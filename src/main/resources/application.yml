@@ -52,8 +52,7 @@ sk-open-api:
     host: https://apis.openapi.sk.com
     endpoint: /tmap/geo/fullAddrGeo
 apple:
-  client-id:
-  key-id: MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1qWaccZVA2xWSHeI K7hUZPbmWgYCLq2k5DCMWIgZGtugCgYIKoZIzj0DAQehRANCAARc6qtB+bq2fKL0 RUH1+fzN9By9k3v3eihCjIFr7nhIepKgjjOvWTzR2qjMomXXmxcB8KDcVlRpa1hC WjBlyEYU
+  key-id: L4GG84VHG4
   team-id: XQ24HP64B3
   bundle-id: com.front.eight.bside
   public-key:
