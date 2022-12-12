@@ -23,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,7 @@ public class AppleAuthenticationService implements AuthenticationService {
 
         // Member 저장
         Member member = Member.builder()
-                .memberId(provider + "_" + claims.get("email"))
+                .memberId(String.format("%s_%s_%s", provider, claims.get("email"), LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)))
                 .provider(provider)
                 .role(Role.USER)
                 .nickName(request.getNickName())
