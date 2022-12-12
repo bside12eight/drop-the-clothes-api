@@ -38,6 +38,9 @@ public class OauthController {
     @PostMapping(value = "/api/oauth2/{provider}")
     @Operation(summary = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api", description = "최초 회원가입 진입 시, 존재하는 회원인지 판별해주는 api")
     public ApiResponse login(@PathVariable LoginProviderType provider, @RequestBody LoginRequest loginRequest) {
+        log.debug(String.format("provider: %s", provider));
+        log.debug(String.format("accessToken: %s, identityToken: %s", loginRequest.getAccessToken(), loginRequest.getIdentityToken()));
+
         if (provider.equals(LoginProviderType.apple)) {
             return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
                     new SingleObject<>(appleAuthenticationService.login(loginRequest)));
@@ -58,6 +61,10 @@ public class OauthController {
     @PostMapping(value = "/api/oauth2/{provider}/signup")
     @Operation(summary = "회원가입 api", description = "회원가입 api")
     public ApiResponse signUp(@PathVariable LoginProviderType provider, @RequestBody JoinRequest joinRequest) {
+        log.debug(String.format("provider: %s", provider));
+        log.debug(String.format("nickName: %s", joinRequest.getNickName()));
+        log.debug(String.format("accessToken: %s, identityToken: %s", joinRequest.getAccessToken(), joinRequest.getIdentityToken()));
+
         if (provider.equals(LoginProviderType.apple)) {
             return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
                     new SingleObject<>(appleAuthenticationService.signUp(provider, joinRequest)));
