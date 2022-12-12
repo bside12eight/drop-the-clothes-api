@@ -3,9 +3,10 @@ package com.droptheclothes.api.model.entity;
 import com.droptheclothes.api.model.base.BaseTimeEntity;
 import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
-import com.droptheclothes.api.utility.BusinessConstants;
 import com.droptheclothes.api.utility.MessageConstants;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -54,7 +55,7 @@ public class Member extends BaseTimeEntity {
 
     public static Member createMember(String providerId, LoginProviderType provider, String nickName, String email) {
         Member member = Member.builder()
-                .memberId(providerId)
+                .memberId(String.format("%s_%s", providerId, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)))
                 .provider(provider)
                 .role(Role.USER)
                 .email(email)
@@ -69,8 +70,6 @@ public class Member extends BaseTimeEntity {
     }
 
     public void removeMember() {
-        this.memberId = this.memberId + BusinessConstants.DELETED_MARK + LocalDateTime.now().format(BusinessConstants.dateTimeFormatter);
-        this.email = this.email + BusinessConstants.DELETED_MARK + LocalDateTime.now().format(BusinessConstants.dateTimeFormatter);
         this.nickName = null;
         this.isRemoved = true;
         this.deletedAt = LocalDateTime.now();
