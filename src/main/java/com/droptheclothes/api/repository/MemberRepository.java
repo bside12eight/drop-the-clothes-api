@@ -13,4 +13,6 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     Optional<Member> findByNickName(String nickName);
 
     Optional<Member> findByMemberIdAndIsRemoved(String memberId, boolean isRemoved);
+
+    Optional<Member> findByMemberIdStartingWithAndIsRemoved(String memberIdPrefix, boolean isRemoved);
 }

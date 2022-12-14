@@ -21,8 +21,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -157,7 +155,7 @@ public class OauthService {
         Member member = getUserProfile(provider, tokenResponse);
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member memberEntity = memberRepository.findByMemberIdAndIsRemoved(member.getMemberId(), false).orElse(null);
+        Member memberEntity = memberRepository.findByMemberIdStartingWithAndIsRemoved(member.getMemberId(), false).orElse(null);
 
         if (memberEntity == null) {
             type = SignType.SIGNUP.getType();
@@ -197,7 +195,7 @@ public class OauthService {
         String email = oauth2UserInfo.getEmail();
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member member = memberRepository.findByMemberIdAndIsRemoved(providerId, false).orElse(null);
+        Member member = memberRepository.findByMemberIdStartingWithAndIsRemoved(providerId, false).orElse(null);
 
         if (member == null) {
             member = Member.createMember(providerId, provider, nickName, email);
@@ -225,7 +223,7 @@ public class OauthService {
         String email = oauth2UserInfo.getEmail();
 
         //이미 존재하는 회원인지 검증하는 과정
-        Member member = memberRepository.findByMemberIdAndIsRemoved(providerId, false).orElse(null);
+        Member member = memberRepository.findByMemberIdStartingWithAndIsRemoved(providerId, false).orElse(null);
 
         if (member == null) {
             member = Member.createMember(providerId, provider, nickName, email);
@@ -362,7 +360,8 @@ public class OauthService {
     private PrivateKey getPrivateKey() {
         try {
             ClassPathResource resource = new ClassPathResource("AuthKey_L4GG84VHG4.p8");
-            String content = new String(Files.readAllBytes(Paths.get(resource.getURI())), "utf-8");
+
+            String content = new String(resource.getInputStream().readAllBytes(), "utf-8");
             String privateKey = content.replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
                     .replaceAll("\\s+", "");
