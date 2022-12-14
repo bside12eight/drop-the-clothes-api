@@ -4,7 +4,6 @@ import com.droptheclothes.api.model.base.BaseTimeEntity;
 import com.droptheclothes.api.model.enums.LoginProviderType;
 import com.droptheclothes.api.model.enums.Role;
 import com.droptheclothes.api.utility.MessageConstants;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
@@ -55,7 +54,7 @@ public class Member extends BaseTimeEntity {
 
     public static Member createMember(String providerId, LoginProviderType provider, String nickName, String email) {
         Member member = Member.builder()
-                .memberId(String.format("%s_%s", providerId, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)))
+                .memberId(String.format("%s_%s", providerId, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))))
                 .provider(provider)
                 .role(Role.USER)
                 .email(email)
