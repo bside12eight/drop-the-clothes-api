@@ -30,22 +30,28 @@ public class GeocodingService {
     private String endpoint;
 
     public Coordinate findCoordinateByAddress(String address) {
-        CoordinateResponse coordinateResponse = WebClient.builder()
-                .baseUrl(host)
-                .build()
-                .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(endpoint)
-                        .queryParam("addressFlag", ADDRESS_FLAG)
-                        .queryParam("version", VERSION)
-                        .queryParam("format", FORMAT)
-                        .queryParam("appKey", appKey)
-                        .queryParam("fullAddr", address)
-                        .build())
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<CoordinateResponse>() {
-                })
-                .block();
+        CoordinateResponse coordinateResponse;
+
+        try {
+            coordinateResponse = WebClient.builder()
+                    .baseUrl(host)
+                    .build()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(endpoint)
+                            .queryParam("addressFlag", ADDRESS_FLAG)
+                            .queryParam("version", VERSION)
+                            .queryParam("format", FORMAT)
+                            .queryParam("appKey", appKey)
+                            .queryParam("fullAddr", address)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<CoordinateResponse>() {
+                    })
+                    .block();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(MessageConstants.INVALID_ADDRESS_MESSAGE);
+        }
 
         if (Objects.isNull(coordinateResponse)
                 || Objects.isNull(coordinateResponse.getCoordinateInfo())
