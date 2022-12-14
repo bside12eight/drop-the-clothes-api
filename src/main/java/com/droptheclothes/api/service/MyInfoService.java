@@ -14,18 +14,22 @@ import com.droptheclothes.api.repository.BlockedMemberRepository;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.repository.ReportMemberRepository;
 import com.droptheclothes.api.security.SecurityUtility;
+import com.droptheclothes.api.utility.BusinessConstants;
 import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class MyInfoService {
 
     private final MemberService memberService;
+
+    private final ObjectStorageService objectStorageService;
 
     private final ReportMemberRepository reportMemberRepository;
 
@@ -45,12 +49,14 @@ public class MyInfoService {
     }
 
     @Transactional
-    public void updateNickname(String nickname) {
+    public MyInfoResponse updateNickname(String nickname) {
         if (memberRepository.findByNickName(nickname).isPresent()) {
             throw new IllegalArgumentException(MessageConstants.ALREADY_EXIST_NICKNAME_MESSAGE);
         }
         Member member = memberService.getMemberById(SecurityUtility.getMemberId());
         member.changeNickName(nickname);
+
+        return MyInfoResponse.of(member);
     }
 
     @Transactional
@@ -101,5 +107,16 @@ public class MyInfoService {
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
 
         blockedMemberRepository.delete(blockedMemberEntity);
+    }
+
+    @Transactional
+    public MyInfoResponse updateProfileImage(MultipartFile image) {
+        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        final String DIRECTORY = BusinessConstants.PROFILE_IMAGE_DIRECTORY + member.getMemberId();
+
+        String imageUrl = objectStorageService.uploadFileToObjectStorage(DIRECTORY, image);
+        member.changeProfileImage(imageUrl);
+
+        return MyInfoResponse.of(member);
     }
 }

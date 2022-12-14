@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,12 +45,11 @@ public class MyInfoController {
     @Operation(summary = "닉네임 변경 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @PutMapping("/api/my/info/nickname")
-    public ApiResponse updateNickname(@RequestParam(required = false) String nickname) {
+    public ApiResponse<MyInfoResponse> updateNickname(@RequestParam(required = false) String nickname) {
         if (StringUtils.isBlank(nickname)) {
             throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
-        myInfoService.updateNickname(nickname);
-        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(myInfoService.updateNickname(nickname)));
     }
 
     @LoginCheck
@@ -107,5 +108,14 @@ public class MyInfoController {
     public ApiResponse unblockUser(String memberId) {
         myInfoService.unblockUser(memberId);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
+    }
+
+    @LoginCheck
+    @Operation(summary = "프로필 이미지 변경 API")
+    @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
+    @PutMapping("/api/my/info/profile-image")
+    public ApiResponse<MyInfoResponse> updateProfileImage(@RequestPart MultipartFile image) {
+        return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
+                new SingleObject<>(myInfoService.updateProfileImage(image)));
     }
 }

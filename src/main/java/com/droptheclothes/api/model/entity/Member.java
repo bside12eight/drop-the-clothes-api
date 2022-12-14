@@ -89,4 +89,9 @@ public class Member extends BaseTimeEntity {
     public boolean isSocialLoginMember() {
         return !provider.equals(LoginProviderType.email.toString());
     }
+
+    public boolean changeProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+        return true;
+    }
 }
