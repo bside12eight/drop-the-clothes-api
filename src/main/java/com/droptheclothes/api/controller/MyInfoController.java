@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,6 +118,10 @@ public class MyInfoController {
     @PutMapping("/api/my/info/profile-image")
     public ApiResponse<MyInfoResponse> updateProfileImage(DefaultProfileImage defaultProfileImage,
                                                           @RequestPart(required = false) MultipartFile image) {
+        if (Objects.isNull(defaultProfileImage) && image.isEmpty()) {
+            throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
+        }
+
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
                 new SingleObject<>(myInfoService.updateProfileImage(defaultProfileImage, image)));
     }
