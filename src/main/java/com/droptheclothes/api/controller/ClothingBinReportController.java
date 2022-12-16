@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ClothingBinReportController {
@@ -36,9 +38,11 @@ public class ClothingBinReportController {
                  consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) List<MultipartFile> images) {
+        log.debug("111111111");
         request.checkArgumentValidation();
+        log.debug("222222222");
         checkImageCountValidation(images);
-
+        log.debug("33333333");
         clothingBinReportService.reportNewClothingBin(request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }

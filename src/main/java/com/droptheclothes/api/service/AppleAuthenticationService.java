@@ -16,6 +16,7 @@ import com.droptheclothes.api.model.enums.SignType;
 import com.droptheclothes.api.repository.MemberRepository;
 import com.droptheclothes.api.utility.MessageConstants;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -131,6 +132,8 @@ public class AppleAuthenticationService implements AuthenticationService {
             KeyFactory keyFactory = KeyFactory.getInstance(applePublicKey.getKty());
             publicKey = keyFactory.generatePublic(publicKeySpec);
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
+        } catch (ExpiredJwtException exception) {
+            throw new AuthenticationException(MessageConstants.EXPIRED_JWT_MESSAGE);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException exception) {
             throw new AuthenticationException(MessageConstants.TOKEN_PARSING_ERROR_MESSAGE);
         }
