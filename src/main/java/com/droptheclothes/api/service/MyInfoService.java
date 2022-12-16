@@ -9,6 +9,7 @@ import com.droptheclothes.api.model.entity.BlockedMember;
 import com.droptheclothes.api.model.entity.Member;
 import com.droptheclothes.api.model.entity.ReportMember;
 import com.droptheclothes.api.model.entity.pk.BlockedMemberId;
+import com.droptheclothes.api.model.enums.DefaultProfileImage;
 import com.droptheclothes.api.repository.ArticleRepository;
 import com.droptheclothes.api.repository.BlockedMemberRepository;
 import com.droptheclothes.api.repository.MemberRepository;
@@ -18,6 +19,7 @@ import com.droptheclothes.api.utility.BusinessConstants;
 import com.droptheclothes.api.utility.MessageConstants;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +55,7 @@ public class MyInfoService {
         if (memberRepository.findByNickName(nickname).isPresent()) {
             throw new IllegalArgumentException(MessageConstants.ALREADY_EXIST_NICKNAME_MESSAGE);
         }
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
         member.changeNickName(nickname);
 
         return MyInfoResponse.of(member);
@@ -61,7 +63,7 @@ public class MyInfoService {
 
     @Transactional
     public void updatePassword(String currentPassword, String password) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
         if (member.isSocialLoginMember()) {
             throw new IllegalArgumentException(MessageConstants.NO_NEED_PASSWORD_MESSAGE);
         }
@@ -69,14 +71,14 @@ public class MyInfoService {
     }
 
     public List<ClothingBinReportResponse> getMyClothingBinReports() {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         List<ReportMember> myReports = reportMemberRepository.findByMemberOrderByCreatedAtDesc(member);
         return ClothingBinReportResponse.of(myReports);
     }
 
     public List<KeepOrDropArticleResponse> getMyKeepOrDropArticles() {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         List<Article> myArticles = articleRepository.findByMemberOrderByCreatedAtDesc(member);
         return KeepOrDropArticleResponse.of(myArticles);
@@ -84,7 +86,7 @@ public class MyInfoService {
 
     @Transactional
     public void blockUser(String nickName) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
         Member blockedMember = memberService.getMemberByNickName(nickName);
 
         BlockedMember blockedMemberEntity = new BlockedMember(member, blockedMember, LocalDateTime.now());
@@ -92,7 +94,7 @@ public class MyInfoService {
     }
 
     public List<BlockedUserResponse> getBlockedUsers() {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         List<BlockedMember> blockedMembers = blockedMemberRepository.findByMemberOrderByCreatedAtDesc(member);
         return BlockedUserResponse.of(blockedMembers);
@@ -100,8 +102,8 @@ public class MyInfoService {
 
     @Transactional
     public void unblockUser(String memberId) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
-        Member blockedMember = memberService.getMemberById(memberId);
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
+        Member blockedMember = memberService.getActiveMemberById(memberId);
 
         BlockedMember blockedMemberEntity = blockedMemberRepository.findById(new BlockedMemberId(member.getMemberId(), blockedMember.getMemberId()))
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
@@ -110,13 +112,17 @@ public class MyInfoService {
     }
 
     @Transactional
-    public MyInfoResponse updateProfileImage(MultipartFile image) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
-        final String DIRECTORY = BusinessConstants.PROFILE_IMAGE_DIRECTORY + member.getMemberId();
+    public MyInfoResponse updateProfileImage(DefaultProfileImage defaultProfileImage, MultipartFile image) {
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
-        String imageUrl = objectStorageService.uploadFileToObjectStorage(DIRECTORY, image);
+        String imageUrl;
+        if (Objects.isNull(defaultProfileImage)) {
+            final String DIRECTORY = BusinessConstants.PROFILE_IMAGE_DIRECTORY + member.getMemberId();
+            imageUrl = objectStorageService.uploadFileToObjectStorage(DIRECTORY, image);
+        } else {
+            imageUrl = defaultProfileImage.getImageUrl();
+        }
         member.changeProfileImage(imageUrl);
-
         return MyInfoResponse.of(member);
     }
 }

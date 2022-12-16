@@ -12,8 +12,8 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public Member getMemberById(String memberId) {
-        return memberRepository.findById(memberId)
+    public Member getActiveMemberById(String memberId) {
+        return memberRepository.findByMemberIdAndIsRemoved(memberId, false)
                                .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
     }
 

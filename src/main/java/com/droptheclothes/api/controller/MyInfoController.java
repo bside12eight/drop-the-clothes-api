@@ -8,6 +8,7 @@ import com.droptheclothes.api.model.dto.clothingbin.ClothingBinReportResponse;
 import com.droptheclothes.api.model.dto.keepordrop.KeepOrDropArticleResponse;
 import com.droptheclothes.api.model.dto.myinfo.BlockedUserResponse;
 import com.droptheclothes.api.model.dto.myinfo.MyInfoResponse;
+import com.droptheclothes.api.model.enums.DefaultProfileImage;
 import com.droptheclothes.api.model.enums.ResultCode;
 import com.droptheclothes.api.security.LoginCheck;
 import com.droptheclothes.api.service.MyInfoService;
@@ -114,8 +115,9 @@ public class MyInfoController {
     @Operation(summary = "프로필 이미지 변경 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
     @PutMapping("/api/my/info/profile-image")
-    public ApiResponse<MyInfoResponse> updateProfileImage(@RequestPart MultipartFile image) {
+    public ApiResponse<MyInfoResponse> updateProfileImage(DefaultProfileImage defaultProfileImage,
+                                                          @RequestPart(required = false) MultipartFile image) {
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS),
-                new SingleObject<>(myInfoService.updateProfileImage(image)));
+                new SingleObject<>(myInfoService.updateProfileImage(defaultProfileImage, image)));
     }
 }

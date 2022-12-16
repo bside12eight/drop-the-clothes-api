@@ -54,7 +54,7 @@ public class ClothingBinReportService {
         checkAlreadyExistClothingBin(request);
         log.debug("5555555");
 
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
         log.debug("666666");
 
         Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
@@ -81,7 +81,7 @@ public class ClothingBinReportService {
     public void reportUpdatedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
         Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
 
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.MATCHED_CLOTHING_BIN_NOT_FOUND_MESSAGE));
@@ -104,7 +104,7 @@ public class ClothingBinReportService {
     public void reportDeletedClothingBin(Long clothingBinId, ClothingBinReportRequest request, List<MultipartFile> images) {
         Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
 
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         ClothingBin clothingBin = clothingBinRepository.findById(clothingBinId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.MATCHED_CLOTHING_BIN_NOT_FOUND_MESSAGE));

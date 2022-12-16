@@ -58,7 +58,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void registerKeepOrDropArticle(KeepOrDropArticleRegisterRequest request, List<MultipartFile> images) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         Category category = categoryRepository.findByName(request.getCategory())
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE));
@@ -91,7 +91,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void registerArticleComment(Long articleId, ArticleCommentRegisterRequest request) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
@@ -173,7 +173,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void voteKeepOrDrop(Long articleId, VoteType voteType) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
@@ -209,7 +209,7 @@ public class KeepOrDropService {
 
     @Transactional
     public void blockKeepOrDropArticle(Long articleId, ChargeReasonType chargeReason) {
-        Member member = memberService.getMemberById(SecurityUtility.getMemberId());
+        Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHDE_CONTENTS_MESSAGE));
