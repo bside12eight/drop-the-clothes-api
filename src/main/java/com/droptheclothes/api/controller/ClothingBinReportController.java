@@ -38,11 +38,8 @@ public class ClothingBinReportController {
                  consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ApiResponse reportNewClothingBin(@RequestPart ClothingBinReportRequest request,
                                             @RequestPart(required = false) List<MultipartFile> images) {
-        log.debug("111111111");
         request.checkArgumentValidation();
-        log.debug("222222222");
         checkImageCountValidation(images);
-        log.debug("33333333");
         clothingBinReportService.reportNewClothingBin(request, images);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), null);
     }

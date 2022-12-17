@@ -47,6 +47,14 @@ public class ClothingBin {
 
     private String address;
 
+    private String cityDo;
+
+    private String guGun;
+
+    private String roadName;
+
+    private String buildingIndex;
+
     private String detailedAddress;
 
     private Double latitude;

@@ -49,32 +49,23 @@ public class ClothingBinReportService {
     @Transactional
     public void reportNewClothingBin(ClothingBinReportRequest request, List<MultipartFile> images) {
         Coordinate coordinate = geocodingService.findCoordinateByAddress(request.getAddress());
-        log.debug("44444444");
 
         checkAlreadyExistClothingBin(request);
-        log.debug("5555555");
 
         Member member = memberService.getActiveMemberById(SecurityUtility.getMemberId());
-        log.debug("666666");
 
         Report report = clothingBinReportRepository.findByAddressAndType(request.getAddress(), ReportType.NEW)
                                         .orElse(Report.of(request, coordinate, ReportType.NEW));
-        log.debug("7777777");
 
         checkDuplicatedReport(new ReportMemberId(report.getReportId(), member.getMemberId()));
-        log.debug("8888888");
 
         updateReportCount(report);
-        log.debug("9999999");
 
         ReportMember reportMember = reportMemberRepository.save(ReportMember.of(report, member));
-        log.debug("10101010101010");
 
         uploadReportImages(images, report, reportMember);
-        log.debug("121212121212");
 
         registerClothingBinReported3Times(report);
-        log.debug("131313131313");
     }
 
     @Transactional

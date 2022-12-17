@@ -21,6 +21,14 @@ public class ClothingBinResponse {
 
     private String address;
 
+    private String cityDo;
+
+    private String guGun;
+
+    private String roadName;
+
+    private String buildingIndex;
+
     private String detailedAddress;
 
     private Double latitude;
@@ -41,6 +49,10 @@ public class ClothingBinResponse {
                 .clothingBinId(entity.getClothingBinId())
                 .name(entity.getName())
                 .address(entity.getAddress())
+                .cityDo(entity.getCityDo())
+                .guGun(entity.getGuGun())
+                .roadName(entity.getRoadName())
+                .buildingIndex(entity.getBuildingIndex())
                 .detailedAddress(entity.getDetailedAddress())
                 .latitude(entity.getLatitude())
                 .longitude(entity.getLongitude())
