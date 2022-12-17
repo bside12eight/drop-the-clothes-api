@@ -65,7 +65,7 @@ public class ClothingBinReportService {
 
         uploadReportImages(images, report, reportMember);
 
-        registerClothingBinReported3Times(report);
+        registerClothingBinReported3Times(report, coordinate);
     }
 
     @Transactional
@@ -88,7 +88,7 @@ public class ClothingBinReportService {
 
         uploadReportImages(images, report, reportMember);
 
-        updateClothingBinReported3Times(clothingBin, report);
+        updateClothingBinReported3Times(clothingBin, report, coordinate);
     }
 
     @Transactional
@@ -159,12 +159,16 @@ public class ClothingBinReportService {
         return reportImageIterator.next().getFilepath();
     }
 
-    private boolean registerClothingBinReported3Times(Report report) {
+    private boolean registerClothingBinReported3Times(Report report, Coordinate coordinate) {
         if (report.getReportCount() < BusinessConstants.MAX_REPORT_COUNT) {
             return false;
         }
         ClothingBin clothingBin = ClothingBin.builder()
                 .address(report.getAddress())
+                .cityDo(coordinate.getCity_do())
+                .guGun(coordinate.getGu_gun())
+                .roadName(coordinate.getNewRoadName())
+                .buildingIndex(coordinate.getNewBuildingIndex())
                 .detailedAddress(report.getDetailedAddress())
                 .latitude(report.getLatitude())
                 .longitude(report.getLongitude())
@@ -178,12 +182,12 @@ public class ClothingBinReportService {
         return true;
     }
 
-    private boolean updateClothingBinReported3Times(ClothingBin clothingBin, Report report) {
+    private boolean updateClothingBinReported3Times(ClothingBin clothingBin, Report report, Coordinate coordinate) {
         if (report.getReportCount() < BusinessConstants.MAX_REPORT_COUNT) {
             return false;
         }
         String firstImagePath = getFirstImage(report);
-        clothingBin.updateClothingBin(report, firstImagePath);
+        clothingBin.updateClothingBin(report, firstImagePath, coordinate);
         clothingBinRepository.save(clothingBin);
         return true;
     }

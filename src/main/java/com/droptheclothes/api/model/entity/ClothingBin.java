@@ -1,6 +1,7 @@
 package com.droptheclothes.api.model.entity;
 
 import com.droptheclothes.api.model.dto.clothingbin.ClothingBinResponse;
+import com.droptheclothes.api.model.dto.geocoding.Coordinate;
 import java.time.LocalDateTime;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
@@ -71,8 +72,12 @@ public class ClothingBin {
 
     private LocalDateTime updatedAt;
 
-    public ClothingBin updateClothingBin(Report report, String firstImagePath) {
+    public ClothingBin updateClothingBin(Report report, String firstImagePath, Coordinate coordinate) {
         this.address = report.getAddress();
+        this.cityDo = coordinate.getCity_do();
+        this.guGun = coordinate.getGu_gun();
+        this.roadName = coordinate.getNewRoadName();
+        this.buildingIndex = coordinate.getNewBuildingIndex();
         this.detailedAddress = report.getDetailedAddress();
         this.latitude = report.getLatitude();
         this.longitude = report.getLongitude();
