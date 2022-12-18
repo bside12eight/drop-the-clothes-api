@@ -15,7 +15,6 @@ import com.droptheclothes.api.security.LoginCheck;
 import com.droptheclothes.api.service.AppleAuthenticationService;
 import com.droptheclothes.api.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -103,10 +102,6 @@ public class OauthController {
     @DeleteMapping("/api/oauth2/member")
     @Operation(summary = "회원탈퇴 api", description = "회원탈퇴 api")
     public ApiResponse deleteMember(String authorizationCode) {
-        if (!Objects.isNull(authorizationCode)) {
-            log.error(String.format("authorizationCode: %s", authorizationCode));
-        }
-
         oauthService.deleteMember(authorizationCode);
         return new ApiResponse(ApiResponseHeader.create(ResultCode.SUCCESS), new SingleObject<>(null));
     }
