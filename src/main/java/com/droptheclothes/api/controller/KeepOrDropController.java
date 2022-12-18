@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,8 +93,8 @@ public class KeepOrDropController {
     @LoginCheck
     @Operation(summary = "버릴까 말까 투표 API")
     @Parameter(name = "Authorization", in = ParameterIn.HEADER, description = "Bearer token", required = true, example = "Bearer {token value}")
-    @PostMapping("/api/keep-or-drop/{articleId}/vote")
-    public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @RequestParam(required = false) VoteType voteType) {
+    @PostMapping("/api/keep-or-drop/{articleId}/vote/{voteType}")
+    public ApiResponse voteKeepOrDrop(@PathVariable Long articleId, @PathVariable VoteType voteType) {
         if (Objects.isNull(voteType)) {
             throw new IllegalArgumentException(MessageConstants.WRONG_REQUEST_PARAMETER_MESSAGE);
         }
