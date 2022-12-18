@@ -16,6 +16,10 @@ public class ClothingBinRepositoryImpl implements ClothingBinRepositoryCustom {
         return entityManager.createNativeQuery("select clothingBinId,\n" +
                                         "       name,\n" +
                                         "       address,\n" +
+                                        "       cityDo,\n" +
+                                        "       guGun,\n" +
+                                        "       roadName,\n" +
+                                        "       buildingIndex,\n" +
                                         "       detailedAddress,\n" +
                                         "       latitude,\n" +
                                         "       longitude,\n" +
