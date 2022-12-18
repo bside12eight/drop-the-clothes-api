@@ -18,21 +18,21 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler({IllegalArgumentException.class, BindException.class})
     public ApiResponse handleIllegalArgumentException(HttpServletRequest request, Exception exception) {
-        writeWarningLog(request);
+        writeWarningLog(request, exception);
         return createResponse(ResultCode.BAD_REQUEST, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler({AuthenticationException.class})
     public ApiResponse handleAuthenticationException(HttpServletRequest request, Exception exception) {
-        writeWarningLog(request);
+        writeWarningLog(request, exception);
         return createResponse(ResultCode.UNAUTHORIZED, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler({AppleRequestException.class})
     public ApiResponse handleAppleRequestException(HttpServletRequest request, Exception exception) {
-        writeWarningLog(request);
+        writeWarningLog(request, exception);
         return createResponse(ResultCode.BAD_REQUEST, exception.getMessage());
     }
 
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         log.error("method: {}, request URI: {}", request.getMethod(), request.getRequestURI(), e);
     }
 
-    private void writeWarningLog(HttpServletRequest request) {
-        log.warn("method: {}, request URI: {}", request.getMethod(), request.getRequestURI());
+    private void writeWarningLog(HttpServletRequest request, Exception e) {
+        log.warn("method: {}, request URI: {}", request.getMethod(), request.getRequestURI(), e);
     }
 }

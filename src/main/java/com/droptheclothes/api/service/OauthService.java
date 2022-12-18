@@ -287,6 +287,7 @@ public class OauthService {
         Member member = memberRepository.findByMemberIdAndIsRemoved(SecurityUtility.getMemberId(), false)
                 .orElseThrow(() -> new IllegalArgumentException(MessageConstants.NO_MATCHED_MEMBER_MESSAGE));
 
+        // TODO: 게시글, 댓글, 제보 사항 전부 Inactive 상태로 변경
         member.removeMember();
         memberRepository.save(member);
 
